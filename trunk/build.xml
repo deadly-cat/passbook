@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="passbook" basedir=".">
+	
+	<property name="app.name" value="passbook"/>
+	<property name="app.version" value="1.0"/>
+	<property name="jar.class" value="home.ingvar.passbook.Passbook"/>
+	<property name="dir.src" value="src"/>
+	<property name="dir.bin" value="bin"/>
+	<property name="dir.lib" value="lib"/>
+	<property name="dir.dist" value="dist"/>
+	<property name="dir.docs" value="docs"/>
+	
+	<path id="path.lib">
+		<fileset dir="${dir.lib}" includes="*.jar"/>
+	</path>
+	
+	<target name="compile">
+		<mkdir dir="${dir.bin}"/>
+		<javac destdir="${dir.bin}" classpathref="path.lib" includeantruntime="false">
+			<src path="${dir.src}"/>
+		</javac>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<mkdir dir="${dir.dist}"/>
+		<jar basedir="${dir.bin}" destfile="${dir.dist}/${app.name}-${app.version}.jar">
+			<manifest>
+				<attribute name="Main-Class" value="${jar.class}"/>
+			</manifest>
+			<zipfileset excludes="META-INF" src="${dir.lib}/h2-1.3.160.jar"/>
+			<zipfileset excludes="META-INF" src="${dir.lib}/log4j-1.2.16.jar"/>
+		</jar>
+	</target>
+	
+	<target name="javadoc">
+		<mkdir dir="${dir.docs}/api"/>
+		<javadoc packagenames="home.ingvar.passbook.*" sourcepath="${dir.src}" destdir="${dir.docs}/api">
+			
+		</javadoc>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${dir.bin}"/>
+		<delete dir="${dir.dist}"/>
+		<delete dir="${dir.docs}"/>
+	</target>
+	
+</project>
