@@ -4,6 +4,7 @@ import java.util.Map;
 
 import home.ingvar.passbook.console.Command;
 import home.ingvar.passbook.console.CommandException;
+import home.ingvar.passbook.console.Parameter;
 import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.dao.ResultException;
 
@@ -11,11 +12,7 @@ import home.ingvar.passbook.dao.ResultException;
 public class Install extends Command {
 
 	@Override
-	public void execute(Map<String, Object> params) throws CommandException {
-		if(params.containsKey("help")) {
-			help();
-			return;
-		}
+	public void execute(Map<Parameter, Object> params) throws CommandException {
 		validate(params);
 		
 		try {
@@ -28,7 +25,12 @@ public class Install extends Command {
 	}
 
 	@Override
-	protected String[] requiredParams() {
+	protected Parameter[] requiredParams() {
+		return null;
+	}
+	
+	@Override
+	protected Parameter[] optionalParams() {
 		return null;
 	}
 	

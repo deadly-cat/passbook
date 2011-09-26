@@ -4,6 +4,7 @@ import java.util.Map;
 
 import home.ingvar.passbook.console.Command;
 import home.ingvar.passbook.console.CommandException;
+import home.ingvar.passbook.console.Parameter;
 import home.ingvar.passbook.console.UserCommand;
 import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.dao.UserDAO;
@@ -12,16 +13,12 @@ import home.ingvar.passbook.transfer.User;
 public class Unregister extends UserCommand {
 
 	@Override
-	public void execute(Map<String, Object> params) throws CommandException {
-		if(params.containsKey("help")) {
-			help();
-			return;
-		}
+	public void execute(Map<Parameter, Object> params) throws CommandException {
 		validate(params);
 		
-		UserDAO userDAO = (UserDAO) params.get("userDAO");
-		User user = (User) params.get("user");
-		String password = (String) params.get("password");
+		UserDAO userDAO = (UserDAO) params.get(Parameter.USER_DAO);
+		User user = (User) params.get(Parameter.USER);
+		String password = (String) params.get(Parameter.PASSWORD);
 		if(!user.getPassword().equals(password)) {
 			throw new CommandException("Password incorrect!");
 		}
@@ -37,8 +34,13 @@ public class Unregister extends UserCommand {
 	}
 
 	@Override
-	protected String[] requiredParams() {
-		return new String[] {"password"};
+	protected Parameter[] requiredParams() {
+		return new Parameter[] {Parameter.PASSWORD};
+	}
+	
+	@Override
+	protected Parameter[] optionalParams() {
+		return null;
 	}
 	
 	@Override

@@ -2,17 +2,14 @@ package home.ingvar.passbook.console.commands;
 
 import home.ingvar.passbook.console.Command;
 import home.ingvar.passbook.console.CommandException;
+import home.ingvar.passbook.console.Parameter;
 
 import java.util.Map;
 
 public class Clear extends Command {
 
 	@Override
-	public void execute(Map<String, Object> params) throws CommandException {
-		if(params.containsKey("help")) {
-			help();
-			return;
-		}
+	public void execute(Map<Parameter, Object> params) throws CommandException {
 		validate(params);
 		
 		StringBuilder cleaner = new StringBuilder();
@@ -23,7 +20,12 @@ public class Clear extends Command {
 	}
 
 	@Override
-	protected String[] requiredParams() {
+	protected Parameter[] requiredParams() {
+		return null;
+	}
+	
+	@Override
+	protected Parameter[] optionalParams() {
 		return null;
 	}
 	
