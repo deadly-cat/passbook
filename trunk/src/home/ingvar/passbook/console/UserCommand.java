@@ -10,10 +10,10 @@ import java.util.Map;
 public abstract class UserCommand extends Command {
 	
 	@Override
-	protected void validate(Map<String, Object> params) throws CommandException {
+	protected void validate(Map<Parameter, Object> params) throws CommandException {
 		super.validate(params);
-		UserDAO userDAO = (UserDAO) params.get("userDAO");
-		User user = (User) params.get("user");
+		UserDAO userDAO = (UserDAO) params.get(Parameter.USER_DAO);
+		User user = (User) params.get(Parameter.USER);
 		try {
 			userDAO.get(user.getUsername(), user.getPassword());
 		} catch(ResultException e) {

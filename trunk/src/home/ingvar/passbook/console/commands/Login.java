@@ -4,6 +4,7 @@ import java.util.Map;
 
 import home.ingvar.passbook.console.Command;
 import home.ingvar.passbook.console.CommandException;
+import home.ingvar.passbook.console.Parameter;
 import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.transfer.User;
@@ -12,18 +13,14 @@ import home.ingvar.passbook.transfer.User;
 public class Login extends Command {
 
 	@Override
-	public void execute(Map<String, Object> params) throws CommandException {
-		if(params.containsKey("help")) {
-			help();
-			return;
-		}
+	public void execute(Map<Parameter, Object> params) throws CommandException {
 		validate(params);
 		
-		UserDAO userDAO = (UserDAO) params.get("userDAO");
-		User user = (User) params.get("user");
+		UserDAO userDAO = (UserDAO) params.get(Parameter.USER_DAO);
+		User user = (User) params.get(Parameter.USER);
 		
-		String username = (String) params.get("username");
-		String password = (String) params.get("password");
+		String username = (String) params.get(Parameter.USERNAME);
+		String password = (String) params.get(Parameter.PASSWORD);
 		try {
 			User login = userDAO.get(username, password);
 			user.fill(login);
@@ -33,8 +30,13 @@ public class Login extends Command {
 	}
 
 	@Override
-	protected String[] requiredParams() {
-		return new String[] {"username", "password"};
+	protected Parameter[] requiredParams() {
+		return new Parameter[] {Parameter.USERNAME, Parameter.PASSWORD};
+	}
+	
+	@Override
+	protected Parameter[] optionalParams() {
+		return null;
 	}
 	
 	@Override

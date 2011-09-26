@@ -59,22 +59,24 @@ public abstract class Command {
 		return names;
 	}
 	
-	public static Map<String, Object> parseParams(String params) {
-		Map<String, Object> p = new HashMap<String, Object>();
+	public static Map<Parameter, Object> parseParams(String params) {
+		Map<Parameter, Object> p = new HashMap<Parameter, Object>();
 		Pattern pattern = Pattern.compile("^([A-z]+)|((?<= |^)-([A-z])|--([A-z]{2,}))( ((([^\\s-]+)[ -]?)+)(?= |$)|)");
 		Matcher matcher = pattern.matcher(params);
 		while(matcher.find()) {
-			String param = null;
+			Parameter param = null;
 			String value = null;
 			if(matcher.group(1) != null) { //command
-				param = "command";
+				param = Parameter.COMMAND;
 				value = matcher.group(1).trim();
 			}
 			else {
-				param = matcher.group(4);
-				if(param == null) {
-					param = getLongName(matcher.group(3).trim().charAt(0));
+				String name = matcher.group(4);
+				if(name == null || name.isEmpty()) {
+					name = matcher.group(5);
 				}
+				name = name.trim();
+				param = Parameter.getByName(name);
 				value = matcher.group(6);
 			}
 			
@@ -85,43 +87,34 @@ public abstract class Command {
 		return p;
 	}
 	
-	private static String getLongName(char p) {
-		switch(p) {
-			case 'h': return "help";
-			case 'u': return "username";
-			case 'p': return "password";
-			case 'f': return "fullname";
-			case 's': return "service";
-			case 'c': return "comment";
-			default: return null;
-		}
-	}
+	public abstract void execute(Map<Parameter, Object> params) throws CommandException;
+	protected abstract Parameter[] requiredParams();
+	protected abstract Parameter[] optionalParams();
 	
-	public abstract void execute(Map<String, Object> params) throws CommandException;
-	protected abstract String[] requiredParams();
-	
-	protected void help() {
+	public void help() {
+		//TODO: create help
 		System.out.println(this);
+		//TODO: write command line command -a value -b value [-c value] [-d value]
 		System.out.println("\tRequired parameters:");
 		if(requiredParams() != null) {
-			for(String p : requiredParams()) {
-				System.out.println("\t\t"+p);
+			for(Parameter p : requiredParams()) {
+				System.out.println("\t\t"+p.longName);
 			}
 		} else {
 			System.out.println("\t\tnone");
 		}
 	}
 	
-	protected void validate(Map<String, Object> params) throws CommandException {
-		String[] required = requiredParams();
+	protected void validate(Map<Parameter, Object> params) throws CommandException {
+		Parameter[] required = requiredParams();
 		if(required != null) {
 			StringBuilder notSet = new StringBuilder();
-			for(String p : required) {
+			for(Parameter p : required) {
 				if(!params.containsKey(p)) {
 					if(notSet.length() > 0) {
 						notSet.append(", ");
 					}
-					notSet.append(p);
+					notSet.append(p.longName);
 				}
 			}
 			if(notSet.length() > 0) {

@@ -3,6 +3,7 @@ package home.ingvar.passbook.console.commands;
 import java.util.Map;
 
 import home.ingvar.passbook.console.CommandException;
+import home.ingvar.passbook.console.Parameter;
 import home.ingvar.passbook.console.UserCommand;
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.ResultException;
@@ -12,22 +13,18 @@ import home.ingvar.passbook.transfer.User;
 public class ItemUpdate extends UserCommand {
 
 	@Override
-	public void execute(Map<String, Object> params) throws CommandException {
-		if(params.containsKey("help")) {
-			help();
-			return;
-		}
+	public void execute(Map<Parameter, Object> params) throws CommandException {
 		validate(params);
 		
-		ItemDAO itemDAO = (ItemDAO) params.get("itemDAO");
-		User owner = (User) params.get("user");
+		ItemDAO itemDAO = (ItemDAO) params.get(Parameter.ITEM_DAO);
+		User owner = (User) params.get(Parameter.USER);
 		
 		Item update = new Item();
 		update.setOwner(owner);
-		update.setService((String) params.get("service"));
-		update.setUsername((String) params.get("username"));
-		update.setPassword((String) params.get("password"));
-		update.setComment((String) params.get("comment"));
+		update.setService((String) params.get(Parameter.SERVICE));
+		update.setUsername((String) params.get(Parameter.USERNAME));
+		update.setPassword((String) params.get(Parameter.PASSWORD));
+		update.setComment((String) params.get(Parameter.COMMENT));
 		try {
 			itemDAO.update(update);
 		} catch(ResultException e) {
@@ -36,8 +33,13 @@ public class ItemUpdate extends UserCommand {
 	}
 
 	@Override
-	protected String[] requiredParams() {
-		return new String[] {"service", "username"};
+	protected Parameter[] requiredParams() {
+		return new Parameter[] {Parameter.SERVICE, Parameter.USERNAME};
+	}
+	
+	@Override
+	protected Parameter[] optionalParams() {
+		return new Parameter[] {Parameter.PASSWORD, Parameter.COMMENT};
 	}
 	
 	@Override

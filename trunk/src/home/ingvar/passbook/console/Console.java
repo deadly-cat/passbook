@@ -33,14 +33,18 @@ public class Console {
 			System.out.print(user + "> ");
 			
 			String input = in.nextLine();
-			Map<String, Object> params = Command.parseParams(input);
-			params.put("user", user);
-			params.put("factory", factory);
-			params.put("userDAO", userDAO);
-			params.put("itemDAO", itemDAO);
+			Map<Parameter, Object> params = Command.parseParams(input);
+			params.put(Parameter.USER, user);
+			params.put(Parameter.FACTORY, factory);
+			params.put(Parameter.USER_DAO, userDAO);
+			params.put(Parameter.ITEM_DAO, itemDAO);
 			try {
 				Command cmd = Command.newInstance((String) params.get("command"));
-				cmd.execute(params);
+				if(params.containsKey(Parameter.HELP)) {
+					cmd.help();
+				} else {
+					cmd.execute(params);
+				}
 				
 			} catch(CommandException e) {
 				System.out.println(e.getMessage());
