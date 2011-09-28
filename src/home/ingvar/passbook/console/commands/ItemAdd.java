@@ -37,7 +37,7 @@ public class ItemAdd extends UserCommand {
 	
 	@Override
 	protected Parameter[] optionalParams() {
-		return new Parameter[] {Parameter.PASSWORD, Parameter.COMMAND};
+		return new Parameter[] {Parameter.PASSWORD, Parameter.COMMENT};
 	}
 	
 	@Override

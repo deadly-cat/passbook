@@ -2,20 +2,21 @@ package home.ingvar.passbook.console;
 
 public enum Parameter {
 	
-	COMMAND(null, "command"),
-	HELP("h", "help"),
-	USERNAME("u", "username"),
-	PASSWORD("p", "password"),
-	FULLNAME("f", "fullname"),
-	SERVICE("s", "service"),
-	COMMENT("c", "comment"),
-	USER(null, "user"),
-	FACTORY(null, "factory"),
-	USER_DAO(null, "userDAO"),
-	ITEM_DAO(null, "itemDAO");
+	COMMAND(null, "command", null),
+	HELP("h", "help", "Display information about command"),
+	USERNAME("u", "username", "Set username"),
+	PASSWORD("p", "password", "Set password"),
+	FULLNAME("f", "fullname", "Set fullname"),
+	SERVICE("s", "service", "Set service"),
+	COMMENT("c", "comment", "Set comment"),
+	USER(null, "user", "Current user"),
+	FACTORY(null, "factory", "Dao factory instance"),
+	USER_DAO(null, "userDAO", "User DAO instance"),
+	ITEM_DAO(null, "itemDAO", "Item DAO instance");
 	
 	public final String shortName;
 	public final String longName;
+	public final String description;
 	
 	public static Parameter getByName(String name) {
 		for(Parameter p : Parameter.values()) {
@@ -26,9 +27,10 @@ public enum Parameter {
 		return null;
 	}
 	
-	Parameter(String shortName, String longName) {
+	Parameter(String shortName, String longName, String description) {
 		this.shortName = shortName;
 		this.longName  = longName;
+		this.description = description;
 	}
 	
 }

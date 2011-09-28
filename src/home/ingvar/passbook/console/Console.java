@@ -39,7 +39,7 @@ public class Console {
 			params.put(Parameter.USER_DAO, userDAO);
 			params.put(Parameter.ITEM_DAO, itemDAO);
 			try {
-				Command cmd = Command.newInstance((String) params.get("command"));
+				Command cmd = Command.newInstance((String) params.get(Parameter.COMMAND));
 				if(params.containsKey(Parameter.HELP)) {
 					cmd.help();
 				} else {
