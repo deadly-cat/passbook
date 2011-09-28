@@ -8,12 +8,6 @@ public abstract class PassGen {
 	private static final String SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+:;~";
 	private static final int[] GROUPS = {0, 26, 52, 62}; //start position of groups of symbols (upper case, lower case, numbers, special chars)
 	
-	public static void main(String[] args) {
-		for(int i = 0; i < 10; i++) {
-			System.out.println(generate(20));
-		}
-	}
-	
 	public static String generate(int length) {
 		SecureRandom rand = new SecureRandom();
 		
@@ -85,6 +79,7 @@ public abstract class PassGen {
 			for(int i = 1; i < array.length-1; i++) {
 				if(SYMBOLS.indexOf(array[i]) < GROUPS[3]) {
 					swap(array, pos, i);
+					break;
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-package home.ingvar.passbook.gui.views;
+package home.ingvar.passbook.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
