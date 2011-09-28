@@ -1,8 +1,10 @@
 package home.ingvar.passbook.gui.views;
 
 import home.ingvar.passbook.dao.ResultException;
-import home.ingvar.passbook.gui.I18n;
+import home.ingvar.passbook.gui.GBHelper;
+import home.ingvar.passbook.gui.MainFrame;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.utils.I18n;
 
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -78,7 +80,7 @@ public class RegPanel extends I18nJPanel {
 	private void register() {
 		String p = password.getText().trim();
 		String c = confirm.getText().trim();
-		if(p == null || p.isEmpty()) {
+		if(p.isEmpty()) {
 			JOptionPane.showMessageDialog(frame, i18n.get("messages.password-empty"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
 			confirm.setText("");
 		}

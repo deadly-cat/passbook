@@ -1,4 +1,4 @@
-package home.ingvar.passbook.gui;
+package home.ingvar.passbook.utils;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

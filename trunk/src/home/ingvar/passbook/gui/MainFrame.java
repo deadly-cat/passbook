@@ -1,10 +1,12 @@
-package home.ingvar.passbook.gui.views;
+package home.ingvar.passbook.gui;
 
 import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.transfer.User;
-import home.ingvar.passbook.gui.I18n;
+import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.gui.views.AuthPanel;
+import home.ingvar.passbook.gui.views.I18nJPanel;
 import home.ingvar.passbook.installer.InstallPanel;
 
 import java.awt.Dimension;

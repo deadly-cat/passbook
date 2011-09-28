@@ -1,7 +1,7 @@
 package home.ingvar.passbook;
 
 import home.ingvar.passbook.console.Console;
-import home.ingvar.passbook.gui.views.MainFrame;
+import home.ingvar.passbook.gui.MainFrame;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -21,7 +21,7 @@ public class Passbook {
 	 * @throws NoSuchAlgorithmException 
 	 * 
 	 */
-	public static void main(String[] args) throws NoSuchAlgorithmException {
+	public static void main(String[] args) {
 		try {
 			if(args.length > 0 && args[0].equals("console")) {
 				new Console().program();

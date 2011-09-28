@@ -1,8 +1,10 @@
 package home.ingvar.passbook.gui.views;
 
-import home.ingvar.passbook.gui.I18n;
+import home.ingvar.passbook.gui.GBHelper;
+import home.ingvar.passbook.gui.MainFrame;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.utils.PassGen;
 
 import java.awt.BorderLayout;

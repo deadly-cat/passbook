@@ -1,9 +1,9 @@
-package home.ingvar.passbook.gui.views;
+package home.ingvar.passbook.gui;
 
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.transfer.Item;
-import home.ingvar.passbook.gui.I18n;
+import home.ingvar.passbook.utils.I18n;
 
 import java.util.ArrayList;
 import java.util.List;

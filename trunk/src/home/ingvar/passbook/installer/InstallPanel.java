@@ -1,11 +1,11 @@
 package home.ingvar.passbook.installer;
 
 import home.ingvar.passbook.dao.DaoFactory;
-import home.ingvar.passbook.gui.I18n;
-import home.ingvar.passbook.gui.views.GBHelper;
+import home.ingvar.passbook.gui.GBHelper;
+import home.ingvar.passbook.gui.MainFrame;
 import home.ingvar.passbook.gui.views.I18nJPanel;
-import home.ingvar.passbook.gui.views.MainFrame;
 import home.ingvar.passbook.gui.views.RegPanel;
+import home.ingvar.passbook.utils.I18n;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
