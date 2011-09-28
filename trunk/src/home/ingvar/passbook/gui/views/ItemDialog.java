@@ -1,14 +1,14 @@
 package home.ingvar.passbook.gui.views;
 
+import home.ingvar.passbook.gui.I18n;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
-import home.ingvar.passbook.gui.I18n;
+import home.ingvar.passbook.utils.PassGen;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.security.SecureRandom;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
@@ -190,16 +190,7 @@ public class ItemDialog extends JDialog {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				password.setText("");
-				SecureRandom s = new SecureRandom();
-				byte[] symbols = s.generateSeed(8);
-				for(int i = 0; i < symbols.length; i++) {
-					int sym = Math.abs(symbols[i]);
-					if(sym < 34) {
-						sym = 126 - sym;
-					}
-					password.setText(password.getText() + (char) sym);
-				}
+				password.setText(PassGen.generate(8));
 			}
 		});
 	}

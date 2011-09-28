@@ -78,12 +78,12 @@ public class RegPanel extends I18nJPanel {
 	private void register() {
 		String p = password.getText().trim();
 		String c = confirm.getText().trim();
-		if(p.isEmpty()) {
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.password-empty"), i18n.get("labels.warning"), JOptionPane.WARNING_MESSAGE);
+		if(p == null || p.isEmpty()) {
+			JOptionPane.showMessageDialog(frame, i18n.get("messages.password-empty"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
 			confirm.setText("");
 		}
 		else if(!p.equals(c)) {
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.passwords-not-equals"), i18n.get("labels.warning"), JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(frame, i18n.get("messages.passwords-not-equals"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
 			password.setText("");
 			confirm.setText("");
 		}

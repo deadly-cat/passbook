@@ -23,6 +23,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
@@ -208,7 +209,13 @@ public class MainFrame extends JFrame {
 		JMenu aboutMenu = new JMenu();
 		menuBar.add(aboutMenu);
 		
-		aboutMenu.add("about");
+		aboutMenu.add("about").addActionListener(new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null, "Created by: Ingvar", "About", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
 	}
 	
 	private void loadProperties() {
