@@ -95,10 +95,11 @@ public class ItemsPanel extends I18nJPanel {
 		btnAdd.setText("");
 		btnEdit.setText("");
 		btnDelete.setText("");
-		if(model.getRowCount() > 0) {
-			model.fireTableStructureChanged();
+		for(int i = 0; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setHeaderValue(model.getColumnName(i));
 		}
 		itemDialog.rei18n();
+		repaint();
 	}
 	
 	private Icon icon(String path) {
