@@ -47,5 +47,10 @@ public interface UserDAO {
 	 * @throws ResultException Если аутентификация прошла неудачно
 	 */
 	public User get(String username, String password) throws ResultException;
+	/**
+	 * Изменяет пароль пользователя
+	 * При этом необходимо перекриптовать все данные пользователя, т.к. ключом криптования является пароль
+	 */
+	public void changePassword(User user, String newPassword) throws ResultException;
 	
 }

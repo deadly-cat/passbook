@@ -69,18 +69,18 @@ public class ProfilePanel extends I18nJPanel {
 		btnDelProfile.setText(i18n.get("buttons.profile.delete"));
 	}
 	
-	private void changePassword(String o, String n, String c) {
+	private void changePassword(String oldP, String newP, String cnfP) {
 		User user = frame.getUser();
-		if(!user.getPassword().equals(o)) {
+		if(!user.getPassword().equals(oldP)) {
 			JOptionPane.showMessageDialog(frame, i18n.get("messages.password-incorrect"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
 		}
-		else if(!n.equals(c)) {
+		else if(!newP.equals(cnfP)) {
 			JOptionPane.showMessageDialog(frame, i18n.get("messages.passwords-not-equals"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
 		}
 		else {
-			user.setPassword(n);
 			try {
-				frame.getUserDAO().update(user);
+				user.setPassword(oldP);
+				frame.getUserDAO().changePassword(user, newP);
 				JOptionPane.showMessageDialog(frame, i18n.get("messages.password-change"), i18n.get("title.info"), JOptionPane.INFORMATION_MESSAGE);
 			} catch(ResultException e) {
 				logger.error(e);
@@ -161,10 +161,6 @@ public class ProfilePanel extends I18nJPanel {
 				deleteProfile();
 			}
 		});
-		
-		//TODO: delete after complete another things
-		btnChangePassword.setEnabled(false);
-		btnDelProfile.setEnabled(false);
 	}
 	
 	private void header() {
