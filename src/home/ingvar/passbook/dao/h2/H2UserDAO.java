@@ -135,5 +135,33 @@ public class H2UserDAO implements UserDAO {
 			}
 		}
 	}
+	
+	@Override
+	public void changePassword(User user, String newPassword) throws ResultException {
+		User valid = get(user.getUsername(), user.getPassword());
+		if(newPassword.length() < 6) {
+			throw new ResultException("Password length must be greater than 6 symbols");
+		}
+		String updItems = String.format("UPDATE passbook.items SET service = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', service)), username = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', username)), password = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', password)), comment = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', comment)) WHERE owner_id = '%3$d'", newPassword, valid.getPassword(), valid.getId());
+		Connection connection = null;
+		try {
+			connection = factory.getConnection();
+			connection.createStatement().executeUpdate(updItems);
+			String cngPassword = "UPDATE passbook.users SET password = P_HASH(?, ?) WHERE id = ?";
+			PreparedStatement state = connection.prepareStatement(cngPassword);
+			state.setString(1, newPassword);
+			state.setString(2, valid.getUsername());
+			state.setLong(3, valid.getId());
+			state.executeUpdate();
+			user.setPassword(newPassword);
+			
+		} catch(SQLException e) {
+			throw new ResultException(e);
+		} finally {
+			if(connection != null) {
+				try{connection.close();}catch(SQLException e){}
+			}
+		}
+	}
 
 }

@@ -92,7 +92,7 @@ public class ViewPanel extends I18nJPanel {
 			panel.loadItems(items);
 		} catch(ResultException e) {
 			logger.error(e);
-			JOptionPane.showMessageDialog(frame, e, i18n.get("labels.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(frame, e, i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
