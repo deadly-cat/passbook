@@ -73,7 +73,7 @@ public abstract class Command {
 			else {
 				String name = matcher.group(4);
 				if(name == null || name.isEmpty()) {
-					name = matcher.group(5);
+					name = matcher.group(3);
 				}
 				name = name.trim();
 				param = Parameter.getByName(name);
@@ -92,16 +92,25 @@ public abstract class Command {
 	protected abstract Parameter[] optionalParams();
 	
 	public void help() {
-		//TODO: create help
 		System.out.println(this);
-		//TODO: write command line command -a value -b value [-c value] [-d value]
+		Parameter[] required = requiredParams();
+		Parameter[] optional = optionalParams();
+		
 		System.out.println("\tRequired parameters:");
-		if(requiredParams() != null) {
-			for(Parameter p : requiredParams()) {
-				System.out.println("\t\t"+p.longName);
-			}
+		if(required == null) {
+			System.out.println("\t\tNONE");
 		} else {
-			System.out.println("\t\tnone");
+			for(Parameter p : required) {
+				System.out.println("\t\t-"+p.shortName+" (--"+p.longName+")\t- "+p.description);
+			}
+		}
+		System.out.println("\tOptional parameters:");
+		if(optional == null) {
+			System.out.println("\t\tNONE");
+		} else {
+			for(Parameter p : optional) {
+				System.out.println("\t\t-"+p.shortName+" (--"+p.longName+")\t- "+p.description);
+			}
 		}
 	}
 	
