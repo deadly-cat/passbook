@@ -3,6 +3,8 @@ package home.ingvar.passbook;
 import home.ingvar.passbook.console.Console;
 import home.ingvar.passbook.gui.views.MainFrame;
 
+import java.security.NoSuchAlgorithmException;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -16,9 +18,10 @@ public class Passbook {
 
 	/**
 	 * @param args
+	 * @throws NoSuchAlgorithmException 
 	 * 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchAlgorithmException {
 		try {
 			if(args.length > 0 && args[0].equals("console")) {
 				new Console().program();
