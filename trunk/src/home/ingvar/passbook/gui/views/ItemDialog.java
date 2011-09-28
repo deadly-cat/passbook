@@ -49,7 +49,7 @@ public class ItemDialog extends JDialog {
 	private JButton btnGenerate;
 	
 	public ItemDialog(MainFrame frame) {
-		super(frame, "Item modify", true);
+		super(frame, "", true);
 		this.frame = frame;
 		this.i18n  = frame.getI18n();
 		
@@ -103,6 +103,7 @@ public class ItemDialog extends JDialog {
 	}
 	
 	public void rei18n() {
+		setTitle(i18n.get("title.item-dialog"));
 		lblService.setText(i18n.get("labels.service")+":");
 		lblUsername.setText(i18n.get("labels.username")+":");
 		lblPassword.setText(i18n.get("labels.password")+":");

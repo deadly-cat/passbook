@@ -136,8 +136,8 @@ public class MainFrame extends JFrame {
 		if(db > 0) {
 			try {
 				DaoFactory factory = DaoFactory.newInstance(db);
+				setDAO(factory);
 				if(!factory.test()) {
-					setDAO(factory);
 					view = new InstallPanel(this);
 				} else {
 					view = new AuthPanel(this);
