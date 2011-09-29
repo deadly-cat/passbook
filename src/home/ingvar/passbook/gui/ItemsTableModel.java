@@ -28,6 +28,9 @@ public class ItemsTableModel extends AbstractTableModel {
 		this.itemDAO = itemDAO;
 		this.items = items;
 		this.showRow = -1;
+		if(items.size() > 0) {
+			fireTableRowsInserted(0, items.size()-1);
+		}
 	}
 	
 	public ItemsTableModel(ItemDAO itemDAO, I18n i18n) {
@@ -37,6 +40,9 @@ public class ItemsTableModel extends AbstractTableModel {
 	public void loadItems(List<Item> items) {
 		this.items.clear();
 		this.items.addAll(items);
+		if(items.size() > 0) {
+			fireTableRowsInserted(0, items.size()-1);
+		}
 	}
 	
 	public Item getItem(int row) {
@@ -46,12 +52,14 @@ public class ItemsTableModel extends AbstractTableModel {
 	public void addItem(Item item) throws ResultException {
 		itemDAO.add(item);
 		items.add(item);
-		fireTableRowsInserted(0, items.size() - 1);
+		fireTableRowsInserted(items.size()-1, items.size()-1);
 	}
 	
 	public void updateItem(Item item) throws ResultException {
 		itemDAO.update(item);
-		items.set(items.indexOf(item), item);
+		int row = items.indexOf(item);
+		items.set(row, item);
+		fireTableRowsUpdated(row, row);
 	}
 	
 	public void removeItem(Item item) throws ResultException {
@@ -83,6 +91,26 @@ public class ItemsTableModel extends AbstractTableModel {
 				return null;
 		}
 	}
+	
+	@Override
+	public void setValueAt(Object value, int row, int col) {
+		Item item = items.get(row);
+		switch(col) {
+			case 0:
+				item.setService((String) value);
+				break;
+			case 1:
+				item.setUsername((String) value);
+				break;
+			case 2:
+				item.setPassword((String) value);
+				break;
+			case 3:
+				item.setComment((String) value);
+				break;
+		}
+	}
+			
 
 	@Override
 	public int getColumnCount() {

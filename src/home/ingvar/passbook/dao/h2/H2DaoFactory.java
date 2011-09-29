@@ -61,8 +61,8 @@ public class H2DaoFactory extends DaoFactory {
 			connection = DriverManager.getConnection("jdbc:h2:storage", "passbook", "passbook");
 			Statement state = connection.createStatement();
 			state.executeUpdate("CREATE SCHEMA IF NOT EXISTS passbook");
-			state.executeUpdate("CREATE TABLE IF NOT EXISTS passbook.users (id IDENTITY, username VARCHAR(20) NOT NULL UNIQUE, password CHAR(64) NOT NULL, fullname VARCHAR(40))");
-			state.executeUpdate("CREATE TABLE IF NOT EXISTS passbook.items (owner_id BIGINT REFERENCES passbook.users(id), service VARCHAR(100), username VARCHAR(100), password VARCHAR(100), comment VARCHAR(200), PRIMARY KEY(owner_id, service, username))");
+			state.executeUpdate("CREATE TABLE IF NOT EXISTS passbook.users (id IDENTITY PRIMARY KEY, username VARCHAR(20) NOT NULL UNIQUE, password CHAR(64) NOT NULL, fullname VARCHAR(40))");
+			state.executeUpdate("CREATE TABLE IF NOT EXISTS passbook.items (id IDENTITY PRIMARY KEY, owner_id BIGINT REFERENCES passbook.users(id), service VARCHAR(100), username VARCHAR(100), password VARCHAR(100), comment VARCHAR(200))");
 			state.executeUpdate("CREATE ALIAS IF NOT EXISTS P_HASH FOR \"home.ingvar.passbook.dao.h2.StoredProcedure.hash\"");
 			state.executeUpdate("CREATE ALIAS IF NOT EXISTS P_ENCRYPT FOR \"home.ingvar.passbook.dao.h2.StoredProcedure.encrypt\""); //P_ENCRYPT(String key, String data) return byte[]
 			state.executeUpdate("CREATE ALIAS IF NOT EXISTS P_DECRYPT FOR \"home.ingvar.passbook.dao.h2.StoredProcedure.decrypt\""); //P_DECRYPT(String key, byte[] data) return String

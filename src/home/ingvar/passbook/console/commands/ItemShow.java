@@ -24,7 +24,9 @@ public class ItemShow extends UserCommand {
 		String username = (String) params.get(Parameter.USERNAME);
 		try {
 			Item item = itemDAO.get(owner, service, username);
-			System.out.println(item);
+			StringBuilder out = new StringBuilder(item.toString());
+			out.append(":").append(item.getPassword()).append(" (").append(item.getComment()).append(")");
+			System.out.println(out);
 		} catch(ResultException e) {
 			throw new CommandException(e);
 		}

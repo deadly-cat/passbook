@@ -12,31 +12,35 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Item implements Serializable, Cloneable {
 
+	private long id;
 	private User owner;
 	private String service;
 	private String username;
 	private String password;
 	private String comment;
 	
+	public Item() {}
+	
 	public Item(User owner) {
 		this();
 		this.owner = owner;
 	}
 	
-	public Item() {
-		owner = null;
-		service  = "";
-		username = "";
-		password = "";
-		comment  = "";
-	}
-	
 	private Item(Item item) {
+		id = item.id;
 		owner    = item.owner;
 		service  = item.service;
 		username = item.username;
 		password = item.password;
 		comment  = item.comment;
+	}
+	
+	public long getId() {
+		return id;
+	}
+	
+	public void setId(long id) {
+		this.id = id;
 	}
 	
 	public User getOwner() {
@@ -64,7 +68,7 @@ public class Item implements Serializable, Cloneable {
 	}
 
 	public String getPassword() {
-		return password == null ? "" : password;
+		return password;
 	}
 
 	public void setPassword(String password) {
@@ -72,7 +76,7 @@ public class Item implements Serializable, Cloneable {
 	}
 
 	public String getComment() {
-		return comment == null ? "" : comment;
+		return comment;
 	}
 
 	public void setComment(String comment) {
@@ -82,7 +86,7 @@ public class Item implements Serializable, Cloneable {
 	@Override
 	public int hashCode() {
 		int hash = 4;
-		return owner.hashCode() * hash + service.hashCode() * hash + username.hashCode() * hash + hash;
+		return owner.hashCode() * hash + ((int) id) * hash + hash;
 	}
 	
 	@Override
@@ -94,17 +98,17 @@ public class Item implements Serializable, Cloneable {
 			return false;
 		}
 		Item o = (Item) obj;
-		return owner.equals(o.owner) && service.equals(o.service) && username.equals(o.username);
+		return owner.equals(o.owner) && id == o.id;
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("|").append(owner.toString()).append("\t");
-		sb.append("|").append(service).append("\t");
-		sb.append("|").append(username).append("\t");
-		sb.append("|").append(password).append("\t");
-		sb.append("|").append(comment).append("|");
+		sb.append("[").append(id).append("] ");
+		sb.append(service).append(" > ");
+		sb.append(username);
+		/*sb.append(":").append(password);
+		sb.append(" (").append(comment).append(")");*/
 		
 		return sb.toString();
 	}

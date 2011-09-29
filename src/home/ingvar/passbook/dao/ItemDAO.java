@@ -42,13 +42,6 @@ public interface ItemDAO {
 	 */
 	public void delete(Item item) throws ResultException;
 	/**
-	 * Удаляет все данные пользователя из хранилища.
-	 * 
-	 * @param owner Пользователь данные, которого необходимо удалить
-	 * @throws ResultException Если при валидации или удалении произошла ошибка
-	 */
-	public void delete(User owner) throws ResultException;
-	/**
 	 * Возвращает единичный экземпляр данных по указанным параметрам
 	 * 
 	 * @param owner Владелец данных
@@ -66,5 +59,9 @@ public interface ItemDAO {
 	 * @throws ResultException Если при валидации или получении произошла ошибка
 	 */
 	public List<Item> list(User owner) throws ResultException;
+	/**
+	 * Валидация данных
+	 */
+	public void validate(Item item) throws ResultException;
 	
 }

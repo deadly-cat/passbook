@@ -15,14 +15,14 @@ import home.ingvar.passbook.dao.h2.H2DaoFactory;
  *         > password char(64) not null - contains hash sha256(password + username)
  *         > fullname varchar(40)
  *     - items
+ *         > id long auto increment primary key
  *         > owner_id long references (users.id) not null
  *         > service varchar(100) not null
  *         > username varchar(100) not null
  *         > password varchar(100)
  *         > comment varchar(200)
- *         > primary key(owner_id, service, username)
  *         
- * Все данные в таблице items, кроме owner_id необходимо шифровать используя пароль пользователя(именно пароль, а не его хэш)
+ * Все данные в таблице items, кроме id, owner_id необходимо шифровать используя пароль пользователя(именно пароль, а не его хэш)
  * 
  * @author ingvar
  * @version 0.3

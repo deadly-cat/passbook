@@ -52,5 +52,11 @@ public interface UserDAO {
 	 * При этом необходимо перекриптовать все данные пользователя, т.к. ключом криптования является пароль
 	 */
 	public void changePassword(User user, String newPassword) throws ResultException;
+	/**
+	 * Проверка пользователя на корректность
+	 * Если пользователь новый, проверяем соответсвие логина и пароля требованиям
+	 * Если существующий, то проверяем id, логин и пароль на соотвествие данным из хранилища
+	 */
+	public void validate(User user, boolean exist) throws ResultException;
 	
 }

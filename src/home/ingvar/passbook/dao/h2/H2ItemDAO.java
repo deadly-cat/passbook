@@ -1,25 +1,25 @@
 package home.ingvar.passbook.dao.h2;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
 public class H2ItemDAO implements ItemDAO {
 	
 	private static final String INSERT = "INSERT INTO passbook.items (owner_id, service, username, password, comment) VALUES (?, P_ENCRYPT(?, ?), P_ENCRYPT(?, ?), P_ENCRYPT(?, ?), P_ENCRYPT(?, ?))";
-	private static final String UPDATE = "UPDATE passbook.items SET password = P_ENCRYPT(?, ?), comment = P_ENCRYPT(?, ?) WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
-	private static final String DELETE = "DELETE passbook.items WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
-	private static final String DELETE_ALL = "DELETE passbook.items WHERE owner_id = ?";
-	private static final String GET  = "SELECT P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment) FROM passbook.items WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
-	private static final String LIST = "SELECT P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment) FROM passbook.items WHERE owner_id = ?";
+	//private static final String UPDATE = "UPDATE passbook.items SET password = P_ENCRYPT(?, ?), comment = P_ENCRYPT(?, ?) WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
+	private static final String DELETE = "DELETE passbook.items WHERE id = ? AND owner_id = ?";
+	private static final String GET  = "SELECT id, P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment) FROM passbook.items WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
+	private static final String LIST = "SELECT id, P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment) FROM passbook.items WHERE owner_id = ?";
 	
 	private H2DaoFactory factory;
 	
@@ -29,13 +29,12 @@ public class H2ItemDAO implements ItemDAO {
 
 	@Override
 	public void add(Item item) throws ResultException {
-		User user = item.getOwner();
-		userValidate(user);
-		
+		validate(item);
+		User user = item.getOwner();		
 		Connection connection = null;
 		try {
 			connection = factory.getConnection();
-			PreparedStatement state = connection.prepareStatement(INSERT);
+			PreparedStatement state = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
 			String password = user.getPassword();
 			
 			state.setLong(1, user.getId());
@@ -47,10 +46,14 @@ public class H2ItemDAO implements ItemDAO {
 			state.setString(7, item.getPassword());
 			state.setString(8, password);
 			state.setString(9, item.getComment());
-			
-			int added = state.executeUpdate();
-			if(added == 0) {
-				throw new ResultException(state.getWarnings());
+			if(state.executeUpdate() == 0) {
+				throw new ResultException("An error occurred while adding a new item");
+			}
+			ResultSet id = state.getGeneratedKeys();
+			if(id.next()) {
+				item.setId(id.getLong(1));
+			} else {
+				throw new ResultException("An error occurred while adding a new item");
 			}
 			
 		} catch(SQLException e) {
@@ -64,27 +67,36 @@ public class H2ItemDAO implements ItemDAO {
 
 	@Override
 	public void update(Item item) throws ResultException {
-		userValidate(item.getOwner());
-		User owner = item.getOwner();
-		Item exist = get(item.getOwner(), item.getService(), item.getUsername());
-		String password = owner.getPassword();
-		
+		validate(item);
 		Connection connection = null;
 		try {
+			String password = item.getOwner().getPassword();
 			connection = factory.getConnection();
-			PreparedStatement state = connection.prepareStatement(UPDATE);
-			state.setString(1, password);
-			state.setString(2, item.getPassword().isEmpty() ? exist.getPassword() : item.getPassword());
-			state.setString(3, password);
-			state.setString(4, item.getComment().isEmpty() ? exist.getComment() : item.getComment());
-			state.setLong(5, owner.getId());
-			state.setString(6, password);
-			state.setString(7, item.getService());
-			state.setString(8, password);
-			state.setString(9, item.getUsername());
-			int updated = state.executeUpdate();
-			if(updated == 0) {
-				throw new ResultException(state.getWarnings());
+			StringBuilder sqlUpdate = new StringBuilder("UPDATE passbook.items SET ");
+			if(item.getService() != null) {
+				sqlUpdate.append("service = P_ENCRYPT('"+password+"', '"+item.getService()+"')");
+			}
+			if(item.getUsername() != null) {
+				if(!sqlUpdate.toString().endsWith("SET ")) {
+					sqlUpdate.append(", ");
+				}
+				sqlUpdate.append("username = P_ENCRYPT('"+password+"','"+item.getUsername()+"')");
+			}
+			if(item.getPassword() != null) {
+				if(!sqlUpdate.toString().endsWith("SET ")) {
+					sqlUpdate.append(", ");
+				}
+				sqlUpdate.append("password = P_ENCRYPT('"+password+"','"+item.getPassword()+"')");
+			}
+			if(item.getComment() != null) {
+				if(!sqlUpdate.toString().endsWith("SET ")) {
+					sqlUpdate.append(", ");
+				}
+				sqlUpdate.append("comment = P_ENCRYPT('"+password+"','"+item.getComment()+"')");
+			}
+			sqlUpdate.append(" WHERE id = "+item.getId()+" AND owner_id = "+item.getOwner().getId());
+			if(connection.createStatement().executeUpdate(sqlUpdate.toString()) == 0) {
+				throw new ResultException("An error occurred while updating a new item"); 
 			}
 			
 		} catch(SQLException e) {
@@ -98,42 +110,15 @@ public class H2ItemDAO implements ItemDAO {
 
 	@Override
 	public void delete(Item item) throws ResultException {
-		userValidate(item.getOwner());
-		
+		validate(item);
 		Connection connection = null;
 		try {
 			connection = factory.getConnection();
 			PreparedStatement state = connection.prepareStatement(DELETE);
-			state.setLong(1, item.getOwner().getId());
-			state.setString(2, item.getOwner().getPassword());
-			state.setString(3, item.getService());
-			state.setString(4, item.getOwner().getPassword());
-			state.setString(5, item.getUsername());
-			int deleted = state.executeUpdate();
-			if(deleted == 0) {
-				throw new ResultException(state.getWarnings());
-			}
-		} catch(SQLException e) {
-			throw new ResultException(e);
-		} finally {
-			if(connection != null) {
-				try{connection.close();}catch(SQLException e){}
-			}
-		}
-	}
-	
-	@Override
-	public void delete(User owner) throws ResultException {
-		userValidate(owner);
-		
-		Connection connection = null;
-		try {
-			connection = factory.getConnection();
-			PreparedStatement state = connection.prepareStatement(DELETE_ALL);
-			state.setLong(1, owner.getId());
-			int deleted = state.executeUpdate();
-			if(deleted == 0) {
-				throw new ResultException(state.getWarnings());
+			state.setLong(1, item.getId());
+			state.setLong(2, item.getOwner().getId());
+			if(state.executeUpdate() == 0) {
+				throw new ResultException("An error occurred while deleting a new item");
 			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
@@ -146,8 +131,7 @@ public class H2ItemDAO implements ItemDAO {
 
 	@Override
 	public Item get(User owner, String service, String username) throws ResultException {
-		userValidate(owner);
-		
+		factory.getUserDAO().validate(owner, true);
 		Connection connection = null;
 		try {
 			connection = factory.getConnection();
@@ -166,10 +150,11 @@ public class H2ItemDAO implements ItemDAO {
 			if(result.next()) {
 				Item item = new Item();
 				item.setOwner(owner);
-				item.setService(result.getString(1));
-				item.setUsername(result.getString(2));
-				item.setPassword(result.getString(3));
-				item.setComment(result.getString(4));
+				item.setId(result.getLong(1));
+				item.setService(result.getString(2).trim());
+				item.setUsername(result.getString(3).trim());
+				item.setPassword(result.getString(4).trim());
+				item.setComment(result.getString(5).trim());
 				return item;
 			} else {
 				throw new ResultException("Item not found!");
@@ -185,8 +170,7 @@ public class H2ItemDAO implements ItemDAO {
 
 	@Override
 	public List<Item> list(User owner) throws ResultException {
-		userValidate(owner);
-		
+		factory.getUserDAO().validate(owner, true);
 		List<Item> items = new ArrayList<Item>();
 		Connection connection = null;
 		try {
@@ -202,10 +186,11 @@ public class H2ItemDAO implements ItemDAO {
 			while(result.next()) {
 				Item item = new Item();
 				item.setOwner(owner);
-				item.setService(result.getString(1));
-				item.setUsername(result.getString(2));
-				item.setPassword(result.getString(3));
-				item.setComment(result.getString(4));
+				item.setId(result.getLong(1));
+				item.setService(result.getString(2).trim());
+				item.setUsername(result.getString(3).trim());
+				item.setPassword(result.getString(4).trim());
+				item.setComment(result.getString(5).trim());
 				items.add(item);
 			}
 			
@@ -219,12 +204,17 @@ public class H2ItemDAO implements ItemDAO {
 		return items;
 	}
 	
-	
-	private void userValidate(User user) throws ResultException {
-		if(user.getId() <= 0) {
-			throw new ResultException("User not found!");
+	@Override
+	public void validate(Item item) throws ResultException {
+		factory.getUserDAO().validate(item.getOwner(), true);
+		/*String service  = item.getService();
+		String username = item.getUsername();
+		if(service == null || service.isEmpty()) {
+			throw new ValidationException("Service must be not empty");
 		}
-		factory.getUserDAO().get(user.getUsername(), user.getPassword());
+		if(username == null || username.isEmpty()) {
+			throw new ValidationException("Username must be not empty");
+		}*/
 	}
 
 }
