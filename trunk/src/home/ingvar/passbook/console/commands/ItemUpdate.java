@@ -21,6 +21,7 @@ public class ItemUpdate extends UserCommand {
 		
 		Item update = new Item();
 		update.setOwner(owner);
+		update.setId(Long.parseLong((String) params.get(Parameter.ID)));
 		update.setService((String) params.get(Parameter.SERVICE));
 		update.setUsername((String) params.get(Parameter.USERNAME));
 		update.setPassword((String) params.get(Parameter.PASSWORD));
@@ -34,12 +35,12 @@ public class ItemUpdate extends UserCommand {
 
 	@Override
 	protected Parameter[] requiredParams() {
-		return new Parameter[] {Parameter.SERVICE, Parameter.USERNAME};
+		return new Parameter[] {Parameter.ID};
 	}
 	
 	@Override
 	protected Parameter[] optionalParams() {
-		return new Parameter[] {Parameter.PASSWORD, Parameter.COMMENT};
+		return new Parameter[] {Parameter.SERVICE, Parameter.USERNAME, Parameter.PASSWORD, Parameter.COMMENT};
 	}
 	
 	@Override

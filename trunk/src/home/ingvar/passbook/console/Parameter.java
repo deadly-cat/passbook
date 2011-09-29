@@ -4,6 +4,7 @@ public enum Parameter {
 	
 	COMMAND(null, "command", null),
 	HELP("h", "help", "Display information about command"),
+	ID("i", "id", "Unique identifier"),
 	USERNAME("u", "username", "Set username"),
 	PASSWORD("p", "password", "Set password"),
 	FULLNAME("f", "fullname", "Set fullname"),

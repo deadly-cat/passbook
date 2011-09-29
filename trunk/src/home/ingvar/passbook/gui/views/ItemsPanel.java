@@ -114,6 +114,7 @@ public class ItemsPanel extends I18nJPanel {
 		
 		sorter.setSortsOnUpdates(true);
 		table.setRowSorter(sorter);
+		table.setAutoscrolls(true);
 		table.getTableHeader().setReorderingAllowed(false); //disable moving column
 		
 		table.addMouseListener(new MouseAdapter() {
@@ -256,7 +257,6 @@ public class ItemsPanel extends I18nJPanel {
 			if(item != null) {
 				try {
 					model.updateItem(item);
-					model.fireTableRowsUpdated(0, model.getRowCount() - 1);
 				} catch(ResultException e) {
 					logger.error(e);
 					JOptionPane.showMessageDialog(frame, e, i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
