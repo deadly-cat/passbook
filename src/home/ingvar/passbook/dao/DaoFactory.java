@@ -34,6 +34,7 @@ public abstract class DaoFactory {
 	 * H2 database (http://www.h2database.com)
 	 */
 	public static final int H2 = 1;
+	public static final int SQLITE = 2;
 	
 	/**
 	 * Create DaoFactory instance
@@ -46,7 +47,7 @@ public abstract class DaoFactory {
 		switch(type) {
 			case H2: return new H2DaoFactory();
 		}
-		throw new InstantiationException("Instance not defined");
+		throw new InstantiationException("Instance not defined"); //TODO: i18n
 	}
 	
 	/**
@@ -71,5 +72,13 @@ public abstract class DaoFactory {
 	 * @throws ResultException if something wrong
 	 */
 	public abstract void install() throws ResultException;
+	/**
+	 * Open connection to datastore
+	 */
+	public abstract void open();
+	/**
+	 * Close connection to datastore
+	 */
+	public abstract void close();
 	
 }

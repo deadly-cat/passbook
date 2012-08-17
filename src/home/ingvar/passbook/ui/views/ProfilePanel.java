@@ -1,10 +1,14 @@
-package home.ingvar.passbook.gui.views;
+package home.ingvar.passbook.ui.views;
 
 import home.ingvar.passbook.dao.ResultException;
-import home.ingvar.passbook.gui.MainFrame;
+import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.ui.AbstractPanel;
+import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBHelper;
-import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.ui.MainFrame;
+import home.ingvar.passbook.ui.res.IMG;
+import home.ingvar.passbook.utils.LOG;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -25,114 +29,116 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
-
-public class ProfilePanel extends I18nJPanel {
-
-	private static final Logger logger = Logger.getLogger(ProfilePanel.class);
+public class ProfilePanel extends AbstractPanel {
+	
 	private static final long serialVersionUID = 1L;
 	private static final Dimension H_RIGID = new Dimension(5, 0);
 	private static final Dimension V_RIGID = new Dimension(0, 5);
-	private final MainFrame frame;
-	private final I18n i18n;
-	
-	private JLabel lblUsername;
+
+	private JLabel lblHeaderUsername;
 	private JLabel lblFullname;
+	private JTextField fldFullname;
 	private TitledBorder brdChangePassword;
 	private JLabel lblNewPassword;
 	private JLabel lblOldPassword;
 	private JLabel lblCnfPassword;
 	private JLabel lblDeleteProfile;
-	
 	private JButton btnBack;
 	private JButton btnChangeName;
 	private JButton btnChangePassword;
 	
 	public ProfilePanel(MainFrame frame) {
-		this.frame = frame;
-		this.i18n  = frame.getI18n();
+		super(frame);
 		
-		this.lblUsername = new JLabel();
+		this.lblHeaderUsername = new JLabel();
 		this.lblFullname = new JLabel();
+		this.fldFullname = new JTextField(15);
 		this.brdChangePassword = BorderFactory.createTitledBorder("");
 		this.lblNewPassword = new JLabel();
 		this.lblOldPassword = new JLabel();
 		this.lblCnfPassword = new JLabel();
 		this.lblDeleteProfile = new JLabel();
-		
 		this.btnBack = new JButton();
 		this.btnChangeName = new JButton();
 		this.btnChangePassword = new JButton();
 		
-		init();
-		rei18n();
+		//TODO: refactor view
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		
+		add(createHeaderPanel());
+		add(createFullnamePanel());
+		add(createPasswordPanel());
+		add(createDeleteProfilePanel());
+		add(Box.createVerticalGlue());
+	}
+
+	@Override
+	protected void init() {
+		updateHeaderName();
+		fldFullname.setText(getUser().getFullname());
+	}
+
+	@Override
+	protected void updateI18n() {
+		lblFullname.setText(getText(Labels.LABELS_FULLNAME)+":");
+		brdChangePassword.setTitle(getText(Labels.LABELS_CHANGE_PASSWORD));
+		lblOldPassword.setText(getText(Labels.LABELS_PASSWORD_OLD)+":");
+		lblNewPassword.setText(getText(Labels.LABELS_PASSWORD_NEW)+":");
+		lblCnfPassword.setText(getText(Labels.LABELS_CONFIRM)+":");
+		lblDeleteProfile.setText(getText(Labels.LABELS_DELETE_PROFILE));
+		
+		btnBack.setText(getText(Labels.BUTTONS_BACK));
+		btnChangeName.setText(getText(Labels.BUTTONS_CHANGE));
+		btnChangePassword.setText(getText(Labels.BUTTONS_CHANGE));
 	}
 	
-	@Override
-	public void rei18n() {
-		lblFullname.setText(i18n.get("labels.fullname")+":");
-		brdChangePassword.setTitle(i18n.get("labels.change-password"));
-		lblOldPassword.setText(i18n.get("labels.password.old")+":");
-		lblNewPassword.setText(i18n.get("labels.password.new")+":");
-		lblCnfPassword.setText(i18n.get("labels.confirm")+":");
-		lblDeleteProfile.setText(i18n.get("labels.delete-profile"));
-		
-		btnBack.setText(i18n.get("buttons.back"));
-		btnChangeName.setText(i18n.get("buttons.change"));
-		btnChangePassword.setText(i18n.get("buttons.change"));
+	private void updateHeaderName() {
+		User user = getUser();
+		if(user.getFullname() == null || user.getFullname().isEmpty()) {
+			lblHeaderUsername.setText(user.getUsername());
+		} else {
+			lblHeaderUsername.setText(user.getFullname());
+		}
 	}
 	
 	private void changePassword(String oldP, String newP, String cnfP) {
-		User user = frame.getUser();
+		User user = getUser();
 		if(!user.getPassword().equals(oldP)) {
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.password-incorrect"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORD_INCORRECT), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
 		}
 		else if(!newP.equals(cnfP)) {
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.passwords-not-equals"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORDS_NOT_EQUALS), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
 		}
 		else {
 			try {
 				user.setPassword(oldP);
-				frame.getUserDAO().changePassword(user, newP);
-				JOptionPane.showMessageDialog(frame, i18n.get("messages.password-change"), i18n.get("title.info"), JOptionPane.INFORMATION_MESSAGE);
+				getUserDAO().changePassword(user, newP);
+				JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORD_CHANGE), getText(Labels.TITLE_INFO), JOptionPane.INFORMATION_MESSAGE);
 			} catch(ResultException e) {
-				logger.error(e);
-				JOptionPane.showMessageDialog(frame, e.getMessage(), i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 			}
 		}
 	}
 	
 	private void deleteProfile() {
-		String message = i18n.get("messages.delete-profile");
-		String password = JOptionPane.showInputDialog(frame, message, i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
+		String password = JOptionPane.showInputDialog(getRoot(), getText(Labels.MESSAGES_DELETE_PROFILE), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
 		if(password == null) {
 			return;
 		}
-		if(password.equals(frame.getUser().getPassword())) {
+		if(password.equals(getUser().getPassword())) {
 			try {
-				frame.getUserDAO().delete(frame.getUser());
-				frame.setUser(null);
-				frame.nextView(new AuthPanel(frame));
+				getUserDAO().delete(getUser());
+				setUser(null);
+				show(Form.LOGIN);
 			} catch(ResultException e) {
-				logger.error(e);
-				JOptionPane.showMessageDialog(frame, e.getMessage(), i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 			}
 		} else {
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.password-incorrect"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORD_INCORRECT), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
 		}
 	}
 	
-	private void init() {
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		
-		add(getHeader());
-		add(getFullname());
-		add(getPassword());
-		add(getDeleteProfile());
-		add(Box.createVerticalGlue());
-	}
-	
-	private JPanel getDeleteProfile() {
+	private JPanel createDeleteProfilePanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
@@ -141,7 +147,7 @@ public class ProfilePanel extends I18nJPanel {
 		content.setLayout(new BoxLayout(content, BoxLayout.LINE_AXIS));
 		lblDeleteProfile.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
 		lblDeleteProfile.setForeground(Color.RED);
-		JButton btnDelete = new JButton(new ImageIcon(ClassLoader.getSystemResource("home/ingvar/passbook/gui/resources/delete_user.png")));
+		JButton btnDelete = new JButton(new ImageIcon(IMG.DELETE_USER.getImage()));
 		content.add(Box.createRigidArea(H_RIGID));
 		content.add(lblDeleteProfile);
 		content.add(Box.createRigidArea(H_RIGID));
@@ -162,7 +168,7 @@ public class ProfilePanel extends I18nJPanel {
 		return panel;
 	}
 	
-	private JPanel getPassword() {
+	private JPanel createPasswordPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
@@ -206,21 +212,18 @@ public class ProfilePanel extends I18nJPanel {
 		return panel;
 	}
 	
-	private JPanel getFullname() {
+	private JPanel createFullnamePanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
 		panel.add(Box.createRigidArea(V_RIGID));
-		final User user = frame.getUser();
-		final JTextField fullname = new JTextField(15);
-		fullname.setMaximumSize(new Dimension(40, 20));
-		fullname.setText(user.getFullname());
+		fldFullname.setMaximumSize(new Dimension(40, 20));
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.LINE_AXIS));
 		content.add(Box.createRigidArea(H_RIGID));
 		content.add(lblFullname);
 		content.add(Box.createRigidArea(H_RIGID));
-		content.add(fullname);
+		content.add(fldFullname);
 		content.add(Box.createRigidArea(H_RIGID));
 		content.add(btnChangeName);
 		content.add(Box.createHorizontalGlue());
@@ -230,14 +233,14 @@ public class ProfilePanel extends I18nJPanel {
 		btnChangeName.addActionListener(new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				user.setFullname(fullname.getText());
+			public void actionPerformed(ActionEvent event) {
+				User user = getUser();
+				user.setFullname(fldFullname.getText());
 				try {
-					frame.getUserDAO().update(user);
-					lblUsername.setText(user.getFullname());
-				} catch (ResultException e1) {
-					logger.error(e1);
-					JOptionPane.showMessageDialog(frame, e1.getMessage(), i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
+					getUserDAO().update(user);
+					updateHeaderName();
+				} catch (ResultException e) {
+					LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 				}
 			}
 		});
@@ -245,7 +248,7 @@ public class ProfilePanel extends I18nJPanel {
 		return panel;
 	}
 	
-	private JPanel getHeader() {
+	private JPanel createHeaderPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createEtchedBorder());
@@ -253,10 +256,9 @@ public class ProfilePanel extends I18nJPanel {
 		panel.add(Box.createRigidArea(V_RIGID));
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.LINE_AXIS));
-		lblUsername.setText(frame.getUser().toString());
-		lblUsername.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
+		lblHeaderUsername.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
 		content.add(Box.createRigidArea(H_RIGID));
-		content.add(lblUsername);
+		content.add(lblHeaderUsername);
 		content.add(Box.createHorizontalGlue());
 		content.add(btnBack);
 		content.add(Box.createRigidArea(H_RIGID));
@@ -267,7 +269,7 @@ public class ProfilePanel extends I18nJPanel {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				frame.nextView(new ViewPanel(frame));
+				show(Form.MAIN);
 			}
 		});
 		

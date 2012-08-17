@@ -1,4 +1,4 @@
-package home.ingvar.passbook.gui;
+package home.ingvar.passbook.ui;
 
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.ResultException;
@@ -23,8 +23,8 @@ public class ItemsTableModel extends AbstractTableModel {
 	private ItemDAO itemDAO;
 	private int showRow;
 	
-	public ItemsTableModel(ItemDAO itemDAO, List<Item> items, I18n i18n) {
-		this.i18n = i18n;
+	public ItemsTableModel(ItemDAO itemDAO, List<Item> items) {
+		this.i18n = I18n.getInstance();
 		this.itemDAO = itemDAO;
 		this.items = items;
 		this.showRow = -1;
@@ -33,8 +33,8 @@ public class ItemsTableModel extends AbstractTableModel {
 		}
 	}
 	
-	public ItemsTableModel(ItemDAO itemDAO, I18n i18n) {
-		this(itemDAO, new ArrayList<Item>(), i18n);
+	public ItemsTableModel(ItemDAO itemDAO) {
+		this(itemDAO, new ArrayList<Item>());
 	}
 	
 	public void loadItems(List<Item> items) {

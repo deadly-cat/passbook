@@ -1,10 +1,13 @@
-package home.ingvar.passbook.gui.views;
+package home.ingvar.passbook.ui.views;
 
 import home.ingvar.passbook.dao.ResultException;
-import home.ingvar.passbook.gui.MainFrame;
+import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.ui.AbstractPanel;
+import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBHelper;
-import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.ui.MainFrame;
+import home.ingvar.passbook.utils.LOG;
 
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -20,20 +23,10 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.apache.log4j.Logger;
+public class RegPanel extends AbstractPanel {
 
-/**
- * @author ingvar
- * @version 0.1
- *
- */
-public class RegPanel extends I18nJPanel {
-	
-	private static final Logger logger = Logger.getLogger(RegPanel.class);
 	private static final long serialVersionUID = 1L;
-	private final MainFrame frame;
-	private final I18n i18n;
-	
+
 	private JLabel lblUsername;
 	private JLabel lblFullname;
 	private JLabel lblPassword;
@@ -48,8 +41,7 @@ public class RegPanel extends I18nJPanel {
 	private JButton btnCancel;
 	
 	public RegPanel(MainFrame frame) {
-		this.frame = frame;
-		this.i18n  = frame.getI18n();
+		super(frame);
 		this.username = new JTextField(15);
 		this.fullname = new JTextField(15);
 		this.password = new JPasswordField(15);
@@ -62,50 +54,7 @@ public class RegPanel extends I18nJPanel {
 		
 		this.btnRegister = new JButton();
 		this.btnCancel   = new JButton();
-		init();
-		rei18n();
-	}
-	
-	@Override
-	public void rei18n() {
-		lblUsername.setText(i18n.get("labels.username")+":");
-		lblFullname.setText(i18n.get("labels.fullname")+":");
-		lblPassword.setText(i18n.get("labels.password")+":");
-		lblConfirm.setText(i18n.get("labels.confirm")+":");
 		
-		btnRegister.setText(i18n.get("buttons.register"));
-		btnCancel.setText(i18n.get("buttons.cancel"));
-	}
-	
-	private void register() {
-		String p = password.getText().trim();
-		String c = confirm.getText().trim();
-		if(p.isEmpty()) {
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.password-empty"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
-			confirm.setText("");
-		}
-		else if(!p.equals(c)) {
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.passwords-not-equals"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
-			password.setText("");
-			confirm.setText("");
-		}
-		else {
-			User user = new User(username.getText().trim(), p, fullname.getText().trim());
-			try {
-				frame.getUserDAO().add(user);
-				frame.setUser(user);
-				frame.nextView(new ViewPanel(frame));
-				
-			} catch(ResultException e) {
-				password.setText("");
-				confirm.setText("");
-				logger.error(e);
-				JOptionPane.showMessageDialog(frame, e.getMessage(), i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
-			}
-		}
-	}
-	
-	private void init() {
 		setLayout(new GridBagLayout());
 		frame.getRootPane().setDefaultButton(btnRegister);
 		
@@ -139,9 +88,55 @@ public class RegPanel extends I18nJPanel {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				frame.nextView(new AuthPanel(frame));
+				show(Form.LOGIN);
 			}
 		});
+	}
+
+	@Override
+	protected void init() {
+		username.setText("");
+		fullname.setText("");
+		password.setText("");
+		confirm.setText("");
+	}
+
+	@Override
+	protected void updateI18n() {
+		lblUsername.setText(getText(Labels.LABELS_USERNAME)+":");
+		lblFullname.setText(getText(Labels.LABELS_FULLNAME)+":");
+		lblPassword.setText(getText(Labels.LABELS_PASSWORD)+":");
+		lblConfirm.setText(getText(Labels.LABELS_CONFIRM)+":");
+		
+		btnRegister.setText(getText(Labels.BUTTONS_REGISTER));
+		btnCancel.setText(getText(Labels.BUTTONS_CANCEL));
+	}
+	
+	private void register() {
+		String p = password.getText().trim();
+		String c = confirm.getText().trim();
+		if(p.isEmpty()) {
+			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORD_EMPTY), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
+			confirm.setText("");
+		}
+		else if(!p.equals(c)) {
+			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORDS_NOT_EQUALS), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
+			password.setText("");
+			confirm.setText("");
+		}
+		else {
+			User user = new User(username.getText().trim(), p, fullname.getText().trim());
+			try {
+				getUserDAO().add(user);
+				setUser(user);
+				show(Form.MAIN);
+				
+			} catch(ResultException e) {
+				password.setText("");
+				confirm.setText("");
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+			}
+		}
 	}
 
 }
