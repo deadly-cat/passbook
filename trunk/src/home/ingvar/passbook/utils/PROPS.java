@@ -34,7 +34,7 @@ public class PROPS {
 	
 	public int getDB() {
 		try {
-			return Integer.valueOf(properties.getProperty(DB), DEF_DB);
+			return Integer.valueOf(properties.getProperty(DB, Integer.toString(DEF_DB)));
 		} catch (NumberFormatException e) {
 			LOG.warn("Incompatible number", "Config file incorrect.\nUsing default value for database", e);
 			return DEF_DB;

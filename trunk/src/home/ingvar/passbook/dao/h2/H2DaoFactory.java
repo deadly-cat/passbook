@@ -14,13 +14,11 @@ import org.h2.jdbcx.JdbcConnectionPool;
 
 public class H2DaoFactory extends DaoFactory {
 	
-	private final JdbcConnectionPool pool;
 	private final H2UserDAO userDAO;
 	private final H2ItemDAO itemDAO;
+	private JdbcConnectionPool pool;
 	
 	public H2DaoFactory() {
-		pool = JdbcConnectionPool.create("jdbc:h2:storage;IFEXISTS=TRUE", "passbook", "passbook");
-		pool.setMaxConnections(10);
 		userDAO = new H2UserDAO(this);
 		itemDAO = new H2ItemDAO(this);
 	}
@@ -42,7 +40,11 @@ public class H2DaoFactory extends DaoFactory {
 	@Override
 	public boolean test() {
 		try {
+			if(!isOpen()) {
+				open();
+			}
 			pool.getConnection().close();
+			close();
 			return true;
 		} catch(SQLException e) {
 			return false;
@@ -75,15 +77,22 @@ public class H2DaoFactory extends DaoFactory {
 			}
 		}
 	}
+	
+	@Override
+	public boolean isOpen() {
+		return pool != null;
+	}
 
 	@Override
 	public void open() {
-		//TODO:
+		pool = JdbcConnectionPool.create("jdbc:h2:storage;IFEXISTS=TRUE", "passbook", "passbook");
+		pool.setMaxConnections(10);
 	}
 
 	@Override
 	public void close() {
 		pool.dispose();
+		pool = null;
 	}
 
 }

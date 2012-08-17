@@ -3,6 +3,7 @@ package home.ingvar.passbook.ui.views;
 import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.ui.AbstractPanel;
+import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBHelper;
 import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.utils.LOG;
@@ -18,16 +19,12 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class InstallPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = 1L;
-	private static final Object[][] databases = {
-		{"H2 database", DaoFactory.H2},
-		//{"SQLite database", DaoFactory.SQLITE}
-	};
-	
 	private JLabel lblInfo;
 	private JLabel lblDatabase;
 	private JComboBox database;
@@ -56,17 +53,21 @@ public class InstallPanel extends AbstractPanel {
 	}
 	
 	private void createDB() {
-		int db = (Integer) databases[database.getSelectedIndex()][1];
+		int db = (Integer) DaoFactory.STORAGES[database.getSelectedIndex()][1];
 		try {
 			DaoFactory factory = DaoFactory.newInstance(db);
 			factory.install();
-			/*frame.setDAO(factory); TODO:
-			frame.setProperty("db", ""+db);
-			JOptionPane.showMessageDialog(frame, i18n.get("messages.created"), i18n.get("title.info"), JOptionPane.INFORMATION_MESSAGE);
-			frame.nextView(new RegPanel(frame));*/
+			getRoot().setStorage(factory, db);
+			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_CREATED), getText(Labels.TITLE_INFO), JOptionPane.INFORMATION_MESSAGE);
+			show(Form.REGISTER);
 		} catch(Exception e) {
 			LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 		}
+	}
+
+	@Override
+	protected JButton getDefaultButton() {
+		return btnCreate;
 	}
 
 	private void composition() {
@@ -94,8 +95,8 @@ public class InstallPanel extends AbstractPanel {
 		
 		buttons.add(btnCreate);
 		
-		for(int i = 0;  i < databases.length; i++) {
-			database.addItem(databases[i][0]);
+		for(int i = 0; i < DaoFactory.STORAGES.length; i++) {
+			database.addItem(DaoFactory.STORAGES[i][0]);
 		}
 		
 		btnCreate.addActionListener(new AbstractAction() {

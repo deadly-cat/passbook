@@ -39,13 +39,16 @@ public class LoginPanel extends AbstractPanel {
 		lblPassword = new JLabel();
 		fldUsername = new JTextField(15);
 		fldPassword = new JPasswordField(15);
-		btnLogin = new JButton();
+		btnLogin    = new JButton();
 		btnRegister = new JButton();
 		
 		btnLogin.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				try {
+					if(!getDaoFactory().isOpen()) {
+						getDaoFactory().open();
+					}
 					User user = getUserDAO().get(fldUsername.getText().trim(), fldPassword.getText());
 					setUser(user);
 					show(Form.MAIN);
@@ -99,4 +102,9 @@ public class LoginPanel extends AbstractPanel {
 		btnRegister.setText(getText(Labels.BUTTONS_REGISTRATION));
 	}
 
+	@Override
+	protected JButton getDefaultButton() {
+		return btnLogin;
+	}
+	
 }

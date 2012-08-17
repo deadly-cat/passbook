@@ -122,6 +122,12 @@ public class MainPanel extends AbstractPanel {
 		repaint();
 	}
 	
+	@Override
+	protected JButton getDefaultButton() {
+		return null;
+	}
+
+
 	private void filter(String expression) {
 		if(model.getRowCount() > 0) {
 			RowFilter<ItemsTableModel, Object> rf = RowFilter.regexFilter(expression, 0);

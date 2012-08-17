@@ -1,10 +1,12 @@
 package home.ingvar.passbook.ui;
 
+import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.utils.I18n;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 public abstract class AbstractPanel extends JPanel {
@@ -30,6 +32,10 @@ public abstract class AbstractPanel extends JPanel {
 		return frame;
 	}
 	
+	public DaoFactory getDaoFactory() {
+		return frame.getDaoFactory();
+	}
+	
 	public UserDAO getUserDAO() {
 		return frame.getUserDAO();
 	}
@@ -48,5 +54,6 @@ public abstract class AbstractPanel extends JPanel {
 	
 	protected abstract void init();
 	protected abstract void updateI18n();
+	protected abstract JButton getDefaultButton();
 	
 }

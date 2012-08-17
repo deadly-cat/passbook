@@ -56,7 +56,6 @@ public class RegPanel extends AbstractPanel {
 		this.btnCancel   = new JButton();
 		
 		setLayout(new GridBagLayout());
-		frame.getRootPane().setDefaultButton(btnRegister);
 		
 		GBHelper helper = new GBHelper();
 		helper.setAnchor(GBHelper.LINE_END);
@@ -112,6 +111,11 @@ public class RegPanel extends AbstractPanel {
 		btnCancel.setText(getText(Labels.BUTTONS_CANCEL));
 	}
 	
+	@Override
+	protected JButton getDefaultButton() {
+		return btnRegister;
+	}
+
 	private void register() {
 		String p = password.getText().trim();
 		String c = confirm.getText().trim();
@@ -127,6 +131,9 @@ public class RegPanel extends AbstractPanel {
 		else {
 			User user = new User(username.getText().trim(), p, fullname.getText().trim());
 			try {
+				if(!getDaoFactory().isOpen()) {
+					getDaoFactory().open();
+				}
 				getUserDAO().add(user);
 				setUser(user);
 				show(Form.MAIN);
