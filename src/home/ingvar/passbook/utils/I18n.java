@@ -5,49 +5,22 @@ import java.util.ResourceBundle;
 
 public class I18n {
 	
-	private static final String LANG_PATH = "home/ingvar/passbook/lang/passbook";
-	private static final Locale[] available = {Locale.ENGLISH, new Locale("ru")};
-	private static I18n INSTANCE;
+	private static Locale[] available = {Locale.ENGLISH, new Locale("ru")};
 	private Locale current;
 	private ResourceBundle resource;
-	//TODO: add exceptions bundle
 	
-	public static synchronized I18n getInstance() {
-		if(INSTANCE == null) {
-			INSTANCE = new I18n();
-		}
-		return INSTANCE;
+	public I18n() {
+		this.current = available[0];
+		this.resource = ResourceBundle.getBundle("home/ingvar/passbook/lang/passbook", current);
 	}
 	
 	public static Locale[] getAvailable() {
-		return available;
-	}
-	
-	public static boolean isAvailable(Locale locale) {
-		for(Locale l : available) {
-			if(l.equals(locale)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private I18n() {
-		current = available[0];
-		resource = ResourceBundle.getBundle(LANG_PATH, current);
-	}
-	
-	public void setLocale(String locale) {
-		setLocale(new Locale(locale));
+		return available.clone();
 	}
 	
 	public void setLocale(Locale locale) {
-		if(isAvailable(locale)) {
-			current  = locale;
-			resource = ResourceBundle.getBundle(LANG_PATH, current);
-		} else {
-			LOG.warn("Incompatible language", "This language is incompatible.", null); //TODO: i18n
-		}
+		current = locale;
+		this.resource = ResourceBundle.getBundle("home/ingvar/passbook/lang/passbook", current);
 	}
 	
 	public Locale getLocale() {

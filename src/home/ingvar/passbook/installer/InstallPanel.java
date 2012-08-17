@@ -1,11 +1,11 @@
-package home.ingvar.passbook.ui.views;
+package home.ingvar.passbook.installer;
 
 import home.ingvar.passbook.dao.DaoFactory;
-import home.ingvar.passbook.lang.Labels;
-import home.ingvar.passbook.ui.AbstractPanel;
-import home.ingvar.passbook.ui.GBHelper;
-import home.ingvar.passbook.ui.MainFrame;
-import home.ingvar.passbook.utils.LOG;
+import home.ingvar.passbook.gui.GBHelper;
+import home.ingvar.passbook.gui.MainFrame;
+import home.ingvar.passbook.gui.views.I18nJPanel;
+import home.ingvar.passbook.gui.views.RegPanel;
+import home.ingvar.passbook.utils.I18n;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -18,41 +18,42 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class InstallPanel extends AbstractPanel {
+import org.apache.log4j.Logger;
 
-	private static final long serialVersionUID = 1L;
+public class InstallPanel extends I18nJPanel {
+	
 	private static final Object[][] databases = {
-		{"H2 database", DaoFactory.H2},
-		//{"SQLite database", DaoFactory.SQLITE}
+		{"H2 database", DaoFactory.H2}
 	};
+	private static final Logger logger = Logger.getLogger(InstallPanel.class);
+	private static final long serialVersionUID = 1L;
+	private final MainFrame frame;
+	private final I18n i18n;
 	
 	private JLabel lblInfo;
 	private JLabel lblDatabase;
 	private JComboBox database;
 	private JButton btnCreate;
-
+	
 	public InstallPanel(MainFrame frame) {
-		super(frame);
+		this.frame = frame;
+		this.i18n  = frame.getI18n();
 		this.lblInfo = new JLabel();
 		this.lblDatabase = new JLabel();
 		this.database    = new JComboBox();
 		this.btnCreate   = new JButton();
-		//TODO: add license
-		composition();
+		init();
+		rei18n();
 	}
 
 	@Override
-	protected void init() {
-		//nothing to do here
-	}
-
-	@Override
-	protected void updateI18n() {
-		lblInfo.setText("  " + getText(Labels.MESSAGES_NOT_CREATE));
-		lblDatabase.setText(getText(Labels.LABELS_DATABASE)+":");
-		btnCreate.setText(getText(Labels.BUTTONS_CREATE));
+	public void rei18n() {
+		lblInfo.setText("  " + i18n.get("messages.not-create"));
+		lblDatabase.setText(i18n.get("labels.database")+":");
+		btnCreate.setText(i18n.get("buttons.create"));
 	}
 	
 	private void createDB() {
@@ -60,16 +61,17 @@ public class InstallPanel extends AbstractPanel {
 		try {
 			DaoFactory factory = DaoFactory.newInstance(db);
 			factory.install();
-			/*frame.setDAO(factory); TODO:
+			frame.setDAO(factory);
 			frame.setProperty("db", ""+db);
 			JOptionPane.showMessageDialog(frame, i18n.get("messages.created"), i18n.get("title.info"), JOptionPane.INFORMATION_MESSAGE);
-			frame.nextView(new RegPanel(frame));*/
+			frame.nextView(new RegPanel(frame));
 		} catch(Exception e) {
-			LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+			logger.error(e);
+			JOptionPane.showMessageDialog(frame, e.getMessage(), i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
-	private void composition() {
+	private void init() {
 		setLayout(new BorderLayout());
 		
 		add(lblInfo, BorderLayout.NORTH);

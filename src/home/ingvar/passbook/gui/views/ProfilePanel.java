@@ -1,9 +1,9 @@
 package home.ingvar.passbook.gui.views;
 
 import home.ingvar.passbook.dao.ResultException;
+import home.ingvar.passbook.gui.GBHelper;
 import home.ingvar.passbook.gui.MainFrame;
 import home.ingvar.passbook.transfer.User;
-import home.ingvar.passbook.ui.GBHelper;
 import home.ingvar.passbook.utils.I18n;
 
 import java.awt.Color;

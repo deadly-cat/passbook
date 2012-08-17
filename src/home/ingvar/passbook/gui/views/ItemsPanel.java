@@ -2,9 +2,8 @@ package home.ingvar.passbook.gui.views;
 
 import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.transfer.Item;
-import home.ingvar.passbook.ui.ItemsTableModel;
-import home.ingvar.passbook.ui.views.ItemDialog;
 import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.gui.ItemsTableModel;
 import home.ingvar.passbook.gui.MainFrame;
 
 import java.awt.BorderLayout;
@@ -67,8 +66,8 @@ public class ItemsPanel extends I18nJPanel {
 	public ItemsPanel(MainFrame frame) {
 		this.frame = frame;
 		this.i18n  = frame.getI18n();
-		//this.itemDialog = new ItemDialog(frame);
-		this.model  = new ItemsTableModel(frame.getItemDAO());
+		this.itemDialog = new ItemDialog(frame);
+		this.model  = new ItemsTableModel(frame.getItemDAO(), i18n);
 		this.table  = new JTable(model);
 		this.sorter = new TableRowSorter<ItemsTableModel>(model);
 		this.status = new StatusLabel();
@@ -101,7 +100,7 @@ public class ItemsPanel extends I18nJPanel {
 		for(int i = 0; i < table.getColumnCount(); i++) {
 			table.getColumnModel().getColumn(i).setHeaderValue(model.getColumnName(i));
 		}
-		itemDialog.updateI18n();
+		itemDialog.rei18n();
 		repaint();
 	}
 	

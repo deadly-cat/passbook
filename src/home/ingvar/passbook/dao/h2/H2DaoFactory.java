@@ -76,14 +76,4 @@ public class H2DaoFactory extends DaoFactory {
 		}
 	}
 
-	@Override
-	public void open() {
-		//TODO:
-	}
-
-	@Override
-	public void close() {
-		pool.dispose();
-	}
-
 }

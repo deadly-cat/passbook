@@ -1,11 +1,9 @@
-package home.ingvar.passbook.ui.views;
+package home.ingvar.passbook.gui.views;
 
-import home.ingvar.passbook.ui.MainFrame;
-import home.ingvar.passbook.lang.Labels;
+import home.ingvar.passbook.gui.GBHelper;
+import home.ingvar.passbook.gui.MainFrame;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
-import home.ingvar.passbook.ui.GBHelper;
-import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.utils.PassGen;
 
@@ -55,7 +53,7 @@ public class ItemDialog extends JDialog {
 	public ItemDialog(MainFrame frame) {
 		super(frame, "", true);
 		this.frame = frame;
-		this.i18n  = I18n.getInstance();
+		this.i18n  = frame.getI18n();
 		
 		this.lblService  = new JLabel();
 		this.lblUsername = new JLabel();
@@ -71,8 +69,8 @@ public class ItemDialog extends JDialog {
 		this.btnCancel = new JButton();
 		this.btnGenerate = new JButton();
 		
-		composition();
-		updateI18n();
+		init();
+		rei18n();
 	}
 	
 	public void setItem(Item value) {
@@ -106,14 +104,14 @@ public class ItemDialog extends JDialog {
 		return null;
 	}
 	
-	public void updateI18n() {
-		setTitle(i18n.get(Labels.TITLE_ITEM_DIALOG));
-		lblService.setText(i18n.get(Labels.LABELS_SERVICE)+":");
-		lblUsername.setText(i18n.get(Labels.LABELS_USERNAME)+":");
-		lblPassword.setText(i18n.get(Labels.LABELS_PASSWORD)+":");
-		lblComment.setText(i18n.get(Labels.LABELS_COMMENT)+":");
-		btnOk.setText(i18n.get(Labels.BUTTONS_OK));
-		btnCancel.setText(i18n.get(Labels.BUTTONS_CANCEL));
+	public void rei18n() {
+		setTitle(i18n.get("title.item-dialog"));
+		lblService.setText(i18n.get("labels.service")+":");
+		lblUsername.setText(i18n.get("labels.username")+":");
+		lblPassword.setText(i18n.get("labels.password")+":");
+		lblComment.setText(i18n.get("labels.comment")+":");
+		btnOk.setText(i18n.get("buttons.ok"));
+		btnCancel.setText(i18n.get("buttons.cancel"));
 		pack();
 	}
 	
@@ -121,20 +119,20 @@ public class ItemDialog extends JDialog {
 		StringBuilder message = new StringBuilder();
 		
 		if(service.getText().isEmpty()) {
-			message.append(i18n.get(Labels.MESSAGES_SERVICE_EMPTY)).append("\n");
+			message.append(i18n.get("messages.service-empty")).append("\n");
 		}
 		if(username.getText().isEmpty()) {
-			message.append(i18n.get(Labels.MESSAGES_USERNAME_EMPTY)).append("\n");
+			message.append(i18n.get("messages.username-empty")).append("\n");
 		}
 		
 		if(message.length() > 0) {
-			JOptionPane.showMessageDialog(null, message, i18n.get(Labels.TITLE_ERROR), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, message, i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
 	}
 	
-	private void composition() {
+	private void init() {
 		setLocationRelativeTo(frame);
 		setResizable(false);
 		getRootPane().setDefaultButton(btnOk);
@@ -188,7 +186,7 @@ public class ItemDialog extends JDialog {
 				setVisible(false);
 			}
 		});
-		btnGenerate.setIcon(new ImageIcon(IMG.PASSGEN.getImage()));
+		btnGenerate.setIcon(new ImageIcon(ClassLoader.getSystemResource("home/ingvar/passbook/gui/resources/pass_gen.png")));
 		btnGenerate.setPreferredSize(new Dimension(25, 19));
 		btnGenerate.addActionListener(new AbstractAction() {
 			private static final long serialVersionUID = 1L;
