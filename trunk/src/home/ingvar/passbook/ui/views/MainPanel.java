@@ -1,11 +1,14 @@
-package home.ingvar.passbook.gui.views;
+package home.ingvar.passbook.ui.views;
 
 import home.ingvar.passbook.dao.ResultException;
+import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.Item;
+import home.ingvar.passbook.ui.AbstractPanel;
+import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.ItemsTableModel;
-import home.ingvar.passbook.ui.views.ItemDialog;
-import home.ingvar.passbook.utils.I18n;
-import home.ingvar.passbook.gui.MainFrame;
+import home.ingvar.passbook.ui.MainFrame;
+import home.ingvar.passbook.ui.res.IMG;
+import home.ingvar.passbook.utils.LOG;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,6 +17,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -25,7 +29,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -36,80 +39,97 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
 
-import org.apache.log4j.Logger;
+public class MainPanel extends AbstractPanel {
 
-/**
- * @author ingvar
- * @version 0.1
- *
- */
-public class ItemsPanel extends I18nJPanel {
-
-	private static final Logger logger = Logger.getLogger(ItemsPanel.class);
 	private static final long serialVersionUID = 1L;
-	private final MainFrame frame;
-	private final I18n i18n;
-	private ItemDialog itemDialog;
-	private JTable table;
+
 	private ItemsTableModel model;
+	private JTable table;
 	private TableRowSorter<ItemsTableModel> sorter;
-	private JLabel status;
+	private JLabel lblStatus;
 	private JLabel lblService;
-	
-	private Action addAction;
-	private Action editAction;
-	private Action deleteAction;
-	
+	private JTextField fldService;
 	private JButton btnAdd;
 	private JButton btnEdit;
 	private JButton btnDelete;
+	private JButton btnProfile;
+	private JButton btnLogout;
 	
-	public ItemsPanel(MainFrame frame) {
-		this.frame = frame;
-		this.i18n  = frame.getI18n();
-		//this.itemDialog = new ItemDialog(frame);
-		this.model  = new ItemsTableModel(frame.getItemDAO());
-		this.table  = new JTable(model);
-		this.sorter = new TableRowSorter<ItemsTableModel>(model);
-		this.status = new StatusLabel();
-		this.lblService = new JLabel();
-		this.addAction = new ViewItemAction("", icon("home/ingvar/passbook/gui/resources/add.png"), true);
-		this.editAction = new ViewItemAction("", icon("home/ingvar/passbook/gui/resources/edit.png"), false);
-		this.deleteAction = new DeleteItemsAction("", icon("home/ingvar/passbook/gui/resources/delete.png"));
-		this.btnAdd = new JButton(addAction);
-		this.btnEdit = new JButton(editAction);
-		this.btnDelete = new JButton(deleteAction);
+	private Action actAdd;
+	private Action actEdit;
+	private Action actDelete;
+	
+	private ItemDialog dialog;
+	
+	public MainPanel(MainFrame frame) {
+		super(frame);
+		model  = new ItemsTableModel(getItemDAO());
+		table  = new JTable(model);
+		sorter = new TableRowSorter<ItemsTableModel>(model);
+		lblStatus = new StatusLabel();
+		lblService = new JLabel();
+		fldService = new JTextField(15);
+		actAdd = new ViewItemAction("", new ImageIcon(IMG.ADD_ITEM.getImage()), true);
+		actEdit = new ViewItemAction("", new ImageIcon(IMG.EDIT_ITEM.getImage()), false);
+		actDelete = new DeleteItemsAction("", new ImageIcon(IMG.DELETE_ITEM.getImage()));
+		btnAdd = new JButton(actAdd);
+		btnEdit = new JButton(actEdit);
+		btnDelete = new JButton(actDelete);
+		btnProfile = new JButton(new ImageIcon(IMG.USER.getImage()));
+		btnLogout = new JButton(new ImageIcon(IMG.EXIT.getImage()));
+		dialog = new ItemDialog(frame);
 		
-		init();
-		buttons();
-		rei18n();
+		btnProfile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				show(Form.PROFILE);
+			}
+		});
+		btnLogout.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getRoot().logout();
+			}
+		});
+		composition();
 	}
 	
-	public void loadItems(List<Item> items) {
-		model.loadItems(items);
-	}
 	
 	@Override
-	public void rei18n() {
-		lblService.setText(i18n.get("labels.service"));
-		addAction.putValue(Action.NAME, i18n.get("buttons.item.add"));
-		editAction.putValue(Action.NAME, i18n.get("buttons.item.edit"));
-		deleteAction.putValue(Action.NAME, i18n.get("buttons.item.delete"));
+	protected void init() {
+		fldService.setText("");
+		try {
+			List<Item> items = getItemDAO().list(getUser());
+			model.loadItems(items);
+		} catch(ResultException e) {
+			LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+		}
+	}
+
+	@Override
+	protected void updateI18n() {
+		lblService.setText(getText(Labels.LABELS_SERVICE) + ":");
+		actAdd.putValue(Action.NAME, getText(Labels.BUTTONS_ITEM_ADD));
+		actEdit.putValue(Action.NAME, getText(Labels.BUTTONS_ITEM_EDIT));
+		actDelete.putValue(Action.NAME, getText(Labels.BUTTONS_ITEM_DELETE));
 		btnAdd.setText("");
 		btnEdit.setText("");
 		btnDelete.setText("");
+		dialog.updateI18n();
 		for(int i = 0; i < table.getColumnCount(); i++) {
 			table.getColumnModel().getColumn(i).setHeaderValue(model.getColumnName(i));
 		}
-		itemDialog.updateI18n();
 		repaint();
 	}
 	
-	private Icon icon(String path) {
-		return new ImageIcon(ClassLoader.getSystemResource(path));
+	private void filter(String expression) {
+		if(model.getRowCount() > 0) {
+			RowFilter<ItemsTableModel, Object> rf = RowFilter.regexFilter(expression, 0);
+			sorter.setRowFilter(rf);
+		}
 	}
 	
-	private void init() {
+	private void composition() {
 		setLayout(new BorderLayout());
 		add(new JScrollPane(table), BorderLayout.CENTER);
 		
@@ -140,7 +160,7 @@ public class ItemsPanel extends I18nJPanel {
 					StringSelection data = new StringSelection(item.getPassword());
 					Clipboard clipboard  = Toolkit.getDefaultToolkit().getSystemClipboard();
 					clipboard.setContents(data, null);
-					status.setText(i18n.get("messages.copy-password"));
+					lblStatus.setText(getText(Labels.MESSAGES_COPY_PASSWORD));
 				}
 			}
 		});
@@ -149,47 +169,49 @@ public class ItemsPanel extends I18nJPanel {
 		layout.setVgap(2);
 		JPanel statusPanel = new JPanel(layout);
 		add(statusPanel, BorderLayout.SOUTH);
-		statusPanel.add(status);
-		statusPanel.setPreferredSize(new Dimension(frame.getWidth(), status.getFont().getSize() + 10));
-	}
-	
-	private void buttons() {
-		JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		add(controls, BorderLayout.NORTH);
+		statusPanel.add(lblStatus);
+		statusPanel.setPreferredSize(new Dimension(getRoot().getWidth(), lblStatus.getFont().getSize() + 10));
 		
-		controls.add(btnAdd);
-		controls.add(btnEdit);
-		controls.add(btnDelete);
+		JPanel wrapControls = new JPanel(new BorderLayout());
+		add(wrapControls, BorderLayout.NORTH);
 		
-		controls.add(lblService);
-		final JTextField filterField = new JTextField(15);
-		filterField.getDocument().addDocumentListener(new DocumentListener() {
+		JPanel itemControls = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		wrapControls.add(itemControls, BorderLayout.WEST);
+		
+		itemControls.add(btnAdd);
+		itemControls.add(btnEdit);
+		itemControls.add(btnDelete);
+		
+		itemControls.add(lblService);
+		fldService.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent event) {
-				filter(filterField.getText());
+				filter(fldService.getText());
 			}
 			@Override
 			public void insertUpdate(DocumentEvent event) {
-				filter(filterField.getText());
+				filter(fldService.getText());
 			}
 			@Override
 			public void changedUpdate(DocumentEvent event) {
-				filter(filterField.getText());
+				filter(fldService.getText());
 			}
 		});
-		controls.add(filterField);
+		itemControls.add(fldService);
+		
+		JPanel userControls = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		wrapControls.add(userControls);
+		userControls.add(btnProfile, BorderLayout.EAST);
+		userControls.add(btnLogout);
 		
 		JPopupMenu popup = new JPopupMenu();
-		popup.add(new JMenuItem(addAction));
-		popup.add(new JMenuItem(editAction));
-		popup.add(new JMenuItem(deleteAction));
+		popup.add(new JMenuItem(actAdd));
+		popup.add(new JMenuItem(actEdit));
+		popup.add(new JMenuItem(actDelete));
 		table.setComponentPopupMenu(popup);
 	}
 	
-	private void filter(String expression) {
-		RowFilter<ItemsTableModel, Object> rf = RowFilter.regexFilter(expression, 0);
-		sorter.setRowFilter(rf);
-	}
+	// ------------- INNER CLASSES ------------- //
 	
 	private class StatusLabel extends JLabel {
 		private static final long serialVersionUID = 1L;
@@ -236,13 +258,12 @@ public class ItemsPanel extends I18nJPanel {
 		}
 		
 		private void add() {
-			Item item = itemDialog.showDialog(frame.getUser());
+			Item item = dialog.showDialog(getUser());
 			if(item != null) {
 				try {
 					model.addItem(item);
 				} catch(ResultException e) {
-					logger.error(e);
-					JOptionPane.showMessageDialog(frame, e, i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
+					LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 				}
 			}
 		}
@@ -250,17 +271,16 @@ public class ItemsPanel extends I18nJPanel {
 		private void edit() {
 			int viewRow = table.getSelectedRow();
 			if(viewRow == -1) {
-				JOptionPane.showMessageDialog(frame, i18n.get("messages.item-not-selected"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
+				LOG.warn(getText(Labels.TITLE_WARNING), getText(Labels.MESSAGES_ITEM_NOT_SELECT), null);
 				return;
 			}
 			int row = table.convertRowIndexToModel(viewRow);
-			Item item = itemDialog.showDialog(model.getItem(row).clone());
+			Item item = dialog.showDialog(model.getItem(row).clone());
 			if(item != null) {
 				try {
 					model.updateItem(item);
 				} catch(ResultException e) {
-					logger.error(e);
-					JOptionPane.showMessageDialog(frame, e, i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
+					LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 				}
 			}
 		}
@@ -279,7 +299,7 @@ public class ItemsPanel extends I18nJPanel {
 		public void actionPerformed(ActionEvent arg0) {
 			int rows[] = table.getSelectedRows();
 			if(rows.length == 0) {
-				JOptionPane.showMessageDialog(frame, i18n.get("messages.item-not-selected"), i18n.get("title.warning"), JOptionPane.WARNING_MESSAGE);
+				LOG.warn(getText(Labels.TITLE_WARNING), getText(Labels.MESSAGES_ITEM_NOT_SELECT), null);
 				return;
 			}
 			try {
@@ -289,11 +309,10 @@ public class ItemsPanel extends I18nJPanel {
 				}
 				model.fireTableRowsDeleted(0, table.getRowCount() - 1);
 			} catch(ResultException e) {
-				logger.error(e);
-				JOptionPane.showMessageDialog(frame, e, i18n.get("title.error"), JOptionPane.ERROR_MESSAGE);
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 			}
 		}
 		
 	}
-	
+
 }

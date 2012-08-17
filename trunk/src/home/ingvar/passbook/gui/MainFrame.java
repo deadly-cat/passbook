@@ -7,7 +7,7 @@ import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.gui.views.AuthPanel;
 import home.ingvar.passbook.gui.views.I18nJPanel;
-import home.ingvar.passbook.installer.InstallPanel;
+import home.ingvar.passbook.gui.views.InstallPanel;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
  */
 public class MainFrame extends JFrame {
 	
-	private static final Logger logger = Logger.getLogger(InstallPanel.class);
+	private static final Logger LOG = Logger.getLogger(InstallPanel.class);
 	private static final long serialVersionUID = 1L;
 	private static final int DEFAULT_WIDTH = 640;
 	private static final int DEFAULT_HEIGTH = 480;
@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		this.properties = new Properties();
 		this.menuBar = new JMenuBar();
-		this.i18n = new I18n();
+		this.i18n = I18n.getInstance();
 		loadProperties();
 		createMenu();
 		init();
@@ -146,7 +146,7 @@ public class MainFrame extends JFrame {
 					view = new AuthPanel(this);
 				}
 			} catch(InstantiationException e) {
-				logger.error(e.getMessage(), e);
+				LOG.error(e.getMessage(), e);
 				view = new InstallPanel(this);
 			}
 		} else {

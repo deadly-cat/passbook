@@ -1,11 +1,10 @@
 package home.ingvar.passbook;
 
 import home.ingvar.passbook.console.Console;
-import home.ingvar.passbook.gui.MainFrame;
+import home.ingvar.passbook.ui.MainFrame;
+import home.ingvar.passbook.utils.LOG;
 
-import java.security.NoSuchAlgorithmException;
-
-import org.apache.log4j.Logger;
+import javax.swing.JFrame;
 
 /**
  * @author ingvar
@@ -13,23 +12,20 @@ import org.apache.log4j.Logger;
  *
  */
 public class Passbook {
-	
-	private static final Logger logger = Logger.getLogger(Passbook.class);
 
-	/**
-	 * @param args
-	 * @throws NoSuchAlgorithmException 
-	 * 
-	 */
 	public static void main(String[] args) {
+		boolean isConsole = args.length > 0 && args[0].equals("console");
+		LOG.setConsole(isConsole);
 		try {
-			if(args.length > 0 && args[0].equals("console")) {
+			if(isConsole) {
 				new Console().program();
 			} else {
-				new MainFrame().setVisible(true);
+				JFrame frame = new MainFrame();
+				LOG.setFrame(frame);
+				frame.setVisible(true);
 			}
 		} catch(Exception e) {
-			logger.error("Initialization error", e);
+			LOG.error("Initialization error", "Something wrong see log for details", e);
 		}
 	}
 
