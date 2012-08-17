@@ -92,6 +92,11 @@ public class ProfilePanel extends AbstractPanel {
 		btnChangePassword.setText(getText(Labels.BUTTONS_CHANGE));
 	}
 	
+	@Override
+	protected JButton getDefaultButton() {
+		return btnBack;
+	}
+
 	private void updateHeaderName() {
 		User user = getUser();
 		if(user.getFullname() == null || user.getFullname().isEmpty()) {
@@ -238,6 +243,7 @@ public class ProfilePanel extends AbstractPanel {
 				user.setFullname(fldFullname.getText());
 				try {
 					getUserDAO().update(user);
+					setUser(user); //need to update title
 					updateHeaderName();
 				} catch (ResultException e) {
 					LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);

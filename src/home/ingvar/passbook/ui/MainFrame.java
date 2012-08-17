@@ -12,6 +12,7 @@ import home.ingvar.passbook.ui.views.MainPanel;
 import home.ingvar.passbook.ui.views.ProfilePanel;
 import home.ingvar.passbook.ui.views.RegPanel;
 import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.utils.LOG;
 import home.ingvar.passbook.utils.PROPS;
 
 import java.awt.Dimension;
@@ -54,10 +55,23 @@ public class MainFrame extends JFrame {
 		createMenu();
 		setJMenuBar(menuBar);
 		
-		createForms();
-		
 		//chose view
-		nextView(Form.INSTALL);
+		Form form = null;
+		try {
+			int db = properties.getDB();
+			DaoFactory factory = DaoFactory.newInstance(db);
+			setStorage(factory, db);
+			form = factory.test() ? Form.LOGIN : Form.INSTALL;
+		} catch(InstantiationException e) {
+			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't create connection to storage.\nMaybe config file was incorrect.\nOpen setting to check it\nor create new storage", e); //TODO:
+			form  = Form.INSTALL;
+		}
+		createForms();
+		nextView(form);
+	}
+	
+	public DaoFactory getDaoFactory() {
+		return daoFactory;
 	}
 	
 	public UserDAO getUserDAO() {
@@ -84,15 +98,23 @@ public class MainFrame extends JFrame {
 		view = form.getPanel();
 		view.init();
 		view.updateI18n();
+		getRootPane().setDefaultButton(view.getDefaultButton());
 		add(view);
 		view.revalidate();
 		repaint();
 	}
 	
 	public void logout() {
-		//TODO: close connections
+		daoFactory.close();
 		setUser(null);
 		nextView(Form.LOGIN);
+	}
+	
+	public void setStorage(DaoFactory factory, int id) {
+		properties.setDB(id);
+		daoFactory = factory;
+		userDAO = daoFactory.getUserDAO();
+		itemDAO = daoFactory.getItemDAO();
 	}
 	
 	private void setPreference() {
@@ -112,29 +134,6 @@ public class MainFrame extends JFrame {
 				close();				
 			}
 		});
-		
-		
-		/* TODO:
-		int db = Integer.parseInt(properties.getProperty("db", "0"));
-		if(db > 0) {
-			try {
-				DaoFactory factory = DaoFactory.newInstance(db);
-				setDAO(factory);
-				if(!factory.test()) {
-					view = new InstallPanel(this);
-				} else {
-					view = new AuthPanel(this);
-				}
-			} catch(InstantiationException e) {
-				LOG.error(e.getMessage(), e);
-				view = new InstallPanel(this);
-			}
-		} else {
-			view = new InstallPanel(this);
-		}
-		add(view);
-		
-		 */
 	}
 	
 	private void createMenu() {
@@ -194,7 +193,7 @@ public class MainFrame extends JFrame {
 	private void updateTitle() {
 		String title = i18n.get(Labels.TITLE_MAIN);
 		if(user != null) {
-			title += " - " + user.getFullname() == null || user.getFullname().isEmpty() ? user.getUsername() : user.getFullname();
+			title += " - " + ((user.getFullname() == null || user.getFullname().isEmpty()) ? user.getUsername() : user.getFullname());
 		}
 		setTitle(title);
 	}

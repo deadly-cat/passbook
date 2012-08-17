@@ -34,7 +34,15 @@ public abstract class DaoFactory {
 	 * H2 database (http://www.h2database.com)
 	 */
 	public static final int H2 = 1;
+	/**
+	 * SQLite database
+	 */
 	public static final int SQLITE = 2;
+	
+	public static final Object[][] STORAGES = {
+		{"H2 database", DaoFactory.H2},
+		//{"SQLite database", DaoFactory.SQLITE}
+	};
 	
 	/**
 	 * Create DaoFactory instance
@@ -76,6 +84,10 @@ public abstract class DaoFactory {
 	 * Open connection to datastore
 	 */
 	public abstract void open();
+	/**
+	 * Open connection to storage or not
+	 */
+	public abstract boolean isOpen();
 	/**
 	 * Close connection to datastore
 	 */
