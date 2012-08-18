@@ -11,6 +11,7 @@ public interface Labels {
 	String MENU_FILE_EXIT = "menu.file.exit";
 	String MENU_SETTINGS = "menu.settings";
 	String MENU_SETTINGS_LANG = "menu.settings.lang";
+	String MENU_SETTINGS_THEME = "menu.settings.theme";
 	String MENU_HELP = "menu.help";
 	String MENU_HELP_ABOUT = "menu.help.about";
 	String LABELS_DATABASE = "labels.database";
@@ -25,6 +26,8 @@ public interface Labels {
 	String LABELS_PASSWORD_OLD = "labels.password.old";
 	String LABELS_PASSWORD_NEW = "labels.password.new";
 	String LABELS_DELETE_PROFILE = "labels.delete-profile";
+	String LABELS_SYSTEM = "labels.system";
+	String LABELS_STANDARD = "labels.standard";
 	String MESSAGES_NOT_CREATE = "messages.not-create";
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";

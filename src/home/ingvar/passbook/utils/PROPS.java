@@ -7,14 +7,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.swing.UIManager;
+
 public class PROPS {
 	
 	private static final String PROP_FILENAME = "config";
 	private static final String DB = "db";
 	private static final String LANG = "lang";
+	private static final String THEME = "theme";
 	
 	private static final int DEF_DB = DaoFactory.H2;
 	private static final String DEF_LANG = "en";
+	private static final String DEF_THEME = UIManager.getSystemLookAndFeelClassName();
 	
 	private static PROPS INSTANCE;
 	private final Properties properties;
@@ -34,7 +38,7 @@ public class PROPS {
 	
 	public int getDB() {
 		try {
-			return Integer.valueOf(properties.getProperty(DB, Integer.toString(DEF_DB)));
+			return Integer.valueOf(get(DB, Integer.toString(DEF_DB)));
 		} catch (NumberFormatException e) {
 			LOG.warn("Incompatible number", "Config file incorrect.\nUsing default value for database", e);
 			return DEF_DB;
@@ -46,11 +50,19 @@ public class PROPS {
 	}
 	
 	public String getLang() {
-		return properties.getProperty(LANG, DEF_LANG);
+		return get(LANG, DEF_LANG);
 	}
 	
 	public void setLang(String lang) {
 		set(LANG, lang);
+	}
+	
+	public String getTheme() {
+		return get(THEME, DEF_THEME);
+	}
+	
+	public void setTheme(String theme) {
+		set(THEME, theme);
 	}
 	
 	public boolean isChanged() {
@@ -82,6 +94,7 @@ public class PROPS {
 			LOG.warn("Load properties", "Load properties fail.\nCreate new properties file", e);
 			setDB(DEF_DB);
 			setLang(DEF_LANG);
+			setTheme(DEF_THEME);
 			saveProperties();
 			
 		} finally {
@@ -92,6 +105,15 @@ public class PROPS {
 	private void set(String key, String value) {
 		isChanged = true;
 		properties.setProperty(key, value);
+	}
+	
+	private String get(String key, String def) {
+		String p = properties.getProperty(key);
+		if(p == null) {
+			set(key, def);
+			return def;
+		}
+		return p;
 	}
 	
 }

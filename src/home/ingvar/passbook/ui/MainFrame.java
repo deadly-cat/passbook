@@ -5,6 +5,9 @@ import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.ui.menu.IMenuItem;
+import home.ingvar.passbook.ui.menu.Menu;
+import home.ingvar.passbook.ui.menu.MenuItem;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.ui.views.InstallPanel;
 import home.ingvar.passbook.ui.views.LoginPanel;
@@ -20,6 +23,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
@@ -27,6 +32,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 public class MainFrame extends JFrame {
 
@@ -37,6 +43,7 @@ public class MainFrame extends JFrame {
 	private final PROPS properties;
 	private final I18n i18n;
 	private final JMenuBar menuBar;
+	private final List<IMenuItem> menuItems;
 	
 	private AbstractPanel view; //current view
 	private User user; //current user
@@ -52,16 +59,25 @@ public class MainFrame extends JFrame {
 		setPreference();
 		
 		menuBar = new JMenuBar();
-		createMenu();
+		menuItems = new LinkedList<IMenuItem>();
 		setJMenuBar(menuBar);
-		
+		createMenu();
+		//set theme
+		try {
+			UIManager.setLookAndFeel(Themes.valueOf(properties.getTheme()).getClassName());
+		} catch (Exception e) {
+			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't load system theme.\nUsing default", e); //TODO:
+			try {UIManager.setLookAndFeel(Themes.STANDART.getClassName());} catch(Exception ex) {}
+			properties.setTheme(Themes.STANDART.toString());
+		}
 		//chose view
 		Form form = null;
 		try {
 			int db = properties.getDB();
-			DaoFactory factory = DaoFactory.newInstance(db);
-			setStorage(factory, db);
-			form = factory.test() ? Form.LOGIN : Form.INSTALL;
+			daoFactory = DaoFactory.newInstance(db);
+			userDAO = daoFactory.getUserDAO();
+			itemDAO = daoFactory.getItemDAO();
+			form = daoFactory.test() ? Form.LOGIN : Form.INSTALL;
 		} catch(InstantiationException e) {
 			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't create connection to storage.\nMaybe config file was incorrect.\nOpen setting to check it\nor create new storage", e); //TODO:
 			form  = Form.INSTALL;
@@ -137,10 +153,8 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void createMenu() {
-		//file menu (0)
-		JMenu fileMenu = new JMenu(i18n.get(Labels.MENU_FILE));
-		menuBar.add(fileMenu);
-		fileMenu.add(i18n.get(Labels.MENU_FILE_EXIT)).addActionListener(new AbstractAction() { //(0.1)
+		JMenu fileMenu = Menu.create(menuBar, menuItems, Labels.MENU_FILE);
+		MenuItem.create(fileMenu, menuItems, Labels.MENU_FILE_EXIT, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -148,12 +162,11 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		//settings menu (1)
-		JMenu settingsMenu = new JMenu(i18n.get(Labels.MENU_SETTINGS));
-		menuBar.add(settingsMenu);
-		
-		JMenu langMenu = new JMenu(i18n.get(Labels.MENU_SETTINGS_LANG)); //(1.1)
-		settingsMenu.add(langMenu);
+		//TODO: make current chose bold
+		JMenu settingsMenu = Menu.create(menuBar, menuItems, Labels.MENU_SETTINGS);
+		Menu langMenu = Menu.create(settingsMenu, menuItems, Labels.MENU_SETTINGS_LANG);
+		//Font pf = langMenu.getFont();
+		//final Font boldFont = new Font(pf.getFamily(), Font.BOLD, pf.getSize());
 		for(final Locale a : I18n.getAvailable()) {
 			String lbl = a.getDisplayName(a);
 			lbl = lbl.substring(0, 1).toUpperCase() + lbl.substring(1);
@@ -163,22 +176,37 @@ public class MainFrame extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					i18n.setLocale(a);
 					properties.setLang(i18n.getLocale().getLanguage());
+					//setFont(boldFont);
 					updateI18n();
 				}
 			});
 		}
+		Menu themeMenu = Menu.create(settingsMenu, menuItems, Labels.MENU_SETTINGS_THEME);
+		for(final Themes theme : Themes.values()) {
+			MenuItem.create(themeMenu, menuItems, theme.getI18nName(), new AbstractAction() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setTheme(theme);
+				}
+			});
+		}
+		/*for(LookAndFeelInfo lf : UIManager.getInstalledLookAndFeels()) {
+			themeMenu.add(lf.getName()).addActionListener(getLFAction(lf.getClassName()));
+		}*/
 		
-		//about menu (2)
-		JMenu aboutMenu = new JMenu(i18n.get(Labels.MENU_HELP));
-		menuBar.add(aboutMenu);
-		
-		aboutMenu.add(i18n.get(Labels.MENU_HELP_ABOUT)).addActionListener(new AbstractAction() { //(2.1)
+		JMenu aboutMenu = Menu.create(menuBar, menuItems, Labels.MENU_HELP);
+		MenuItem.create(aboutMenu, menuItems, Labels.MENU_HELP_ABOUT, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(null, "Created by: Igor Zubenko(igor.a.zubenko@gmail.com)\nLicensed by: http://opensource.org/licenses/BSD-3-Clause", "About", JOptionPane.INFORMATION_MESSAGE); //TODO: i18n
 			}
 		});
+		
+		for(IMenuItem m : menuItems) {
+			m.updateI18n();
+		}
 	}
 	
 	private void createForms() {
@@ -200,22 +228,9 @@ public class MainFrame extends JFrame {
 	
 	private void updateI18n() {
 		updateTitle();
-		
-		//file menu
-		JMenu file = menuBar.getMenu(0);
-		file.setText(i18n.get(Labels.MENU_FILE));
-		file.getItem(0).setText(i18n.get(Labels.MENU_FILE_EXIT));
-		
-		//settings menu
-		JMenu settings = menuBar.getMenu(1);
-		settings.setText(i18n.get(Labels.MENU_SETTINGS));
-		settings.getItem(0).setText(i18n.get(Labels.MENU_SETTINGS_LANG));
-		
-		//help menu
-		JMenu help = menuBar.getMenu(2);
-		help.setText(i18n.get(Labels.MENU_HELP));
-		help.getItem(0).setText(i18n.get(Labels.MENU_HELP_ABOUT));
-		
+		for(IMenuItem m : menuItems) {
+			m.updateI18n();
+		}
 		view.updateI18n();
 	}
 	
@@ -225,6 +240,42 @@ public class MainFrame extends JFrame {
 		}
 		dispose();
 		System.exit(0);
+	}
+	
+	private void setTheme(Themes theme) {
+		setVisible(false);
+		try {
+			UIManager.setLookAndFeel(theme.getClassName());
+			properties.setTheme(theme.toString());
+		} catch(Exception e) {
+			LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
+		}
+		setVisible(true);
+	}
+	
+	// ------------------ INNER CLASSES ------------------ //
+	
+	private enum Themes {
+		
+		SYSTEM(Labels.LABELS_SYSTEM, UIManager.getSystemLookAndFeelClassName()),
+		STANDART(Labels.LABELS_STANDARD, UIManager.getCrossPlatformLookAndFeelClassName());
+		
+		private String i18nName;
+		private String className;
+		
+		Themes(String i18nName, String className) {
+			this.i18nName  = i18nName;
+			this.className = className;
+		}
+		
+		public String getI18nName() {
+			return i18nName;
+		}
+		
+		public String getClassName() {
+			return className;
+		}
+		
 	}
 
 }

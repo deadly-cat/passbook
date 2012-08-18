@@ -2,7 +2,7 @@
 <project name="passbook" basedir=".">
 	
 	<property name="app.name" value="passbook"/>
-	<property name="app.version" value="1.0.5"/>
+	<property name="app.version" value="1.1.0"/>
 	<property name="jar.class" value="home.ingvar.passbook.Passbook"/>
 	<property name="dir.src" value="src"/>
 	<property name="dir.bin" value="bin"/>
