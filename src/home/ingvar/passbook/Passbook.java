@@ -25,7 +25,7 @@ public class Passbook {
 				frame.setVisible(true);
 			}
 		} catch(Exception e) {
-			LOG.error("Initialization error", "Something wrong see log for details", e);
+			LOG.error("Initialization error", "Something wrong see log for details", e); //TODO: i18n
 		}
 	}
 

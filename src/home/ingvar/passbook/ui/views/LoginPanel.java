@@ -6,7 +6,6 @@ import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBH;
-import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.utils.LOG;
 
 import java.awt.Dimension;
@@ -33,8 +32,7 @@ public class LoginPanel extends AbstractPanel {
 	private JButton btnLogin;
 	private JButton btnRegister;
 	
-	public LoginPanel(MainFrame frame) {
-		super(frame);
+	public LoginPanel() {
 		lblUsername = new JLabel();
 		lblPassword = new JLabel();
 		fldUsername = new JTextField(15);
