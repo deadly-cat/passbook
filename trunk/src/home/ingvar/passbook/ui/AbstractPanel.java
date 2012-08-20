@@ -15,11 +15,6 @@ public abstract class AbstractPanel extends JPanel {
 	private I18n i18n;
 	private MainFrame frame;
 	
-	public AbstractPanel(MainFrame frame) {
-		this.frame = frame;
-		this.i18n  = I18n.getInstance();
-	}
-	
 	public void show(Form form) {
 		frame.nextView(form);
 	}
@@ -54,6 +49,16 @@ public abstract class AbstractPanel extends JPanel {
 	
 	public void setUser(User user) {
 		frame.setUser(user);
+	}
+	
+	protected AbstractPanel inject(MainFrame frame) {
+		this.frame = frame;
+		this.i18n  = I18n.getInstance();
+		return this;
+	}
+	
+	protected AbstractPanel postConstruct() {
+		return this;
 	}
 	
 	protected abstract void init();

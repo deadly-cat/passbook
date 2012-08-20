@@ -6,7 +6,6 @@ import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBH;
-import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.utils.LOG;
 
 import java.awt.Dimension;
@@ -40,8 +39,7 @@ public class RegPanel extends AbstractPanel {
 	private JButton btnRegister;
 	private JButton btnCancel;
 	
-	public RegPanel(MainFrame frame) {
-		super(frame);
+	public RegPanel() {
 		this.username = new JTextField(15);
 		this.fullname = new JTextField(15);
 		this.password = new JPasswordField(15);

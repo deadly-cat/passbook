@@ -4,7 +4,6 @@ import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
-import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.utils.LOG;
 
 import java.awt.event.ActionEvent;
@@ -24,8 +23,7 @@ public class InstallPanel extends AbstractPanel {
 	private JTextArea txaLicense;
 	private JButton btnCreate;
 
-	public InstallPanel(MainFrame frame) {
-		super(frame);
+	public InstallPanel() {
 		lblDatabase = new JLabel();
 		database    = new JComboBox();
 		txaLicense  = new JTextArea();

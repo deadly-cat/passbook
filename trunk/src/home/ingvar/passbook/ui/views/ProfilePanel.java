@@ -6,7 +6,6 @@ import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBH;
-import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.LOG;
 
@@ -47,9 +46,7 @@ public class ProfilePanel extends AbstractPanel {
 	private JButton btnChangeName;
 	private JButton btnChangePassword;
 	
-	public ProfilePanel(MainFrame frame) {
-		super(frame);
-		
+	public ProfilePanel() {
 		this.lblHeaderUsername = new JLabel();
 		this.lblFullname = new JLabel();
 		this.fldFullname = new JTextField(15);

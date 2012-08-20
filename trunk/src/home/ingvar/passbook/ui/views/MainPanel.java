@@ -6,7 +6,6 @@ import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.ItemsTableModel;
-import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.LOG;
 
@@ -35,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
+import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
@@ -61,12 +61,8 @@ public class MainPanel extends AbstractPanel {
 	
 	private ItemDialog dialog;
 	
-	public MainPanel(MainFrame frame) {
-		super(frame);
-		model  = new ItemsTableModel(getItemDAO());
-		table  = new JTable(model);
-		sorter = new TableRowSorter<ItemsTableModel>(model);
-		lblStatus = new StatusLabel();
+	public MainPanel() {
+		lblStatus  = new StatusLabel();
 		lblService = new JLabel();
 		fldService = new JTextField(15);
 		actAdd = new ViewItemAction("", new ImageIcon(IMG.ADD_ITEM.getImage()), true);
@@ -77,7 +73,6 @@ public class MainPanel extends AbstractPanel {
 		btnDelete = new JButton(actDelete);
 		btnProfile = new JButton(new ImageIcon(IMG.USER.getImage()));
 		btnLogout = new JButton(new ImageIcon(IMG.EXIT.getImage()));
-		dialog = new ItemDialog(frame);
 		
 		btnProfile.addActionListener(new ActionListener() {
 			@Override
@@ -91,9 +86,50 @@ public class MainPanel extends AbstractPanel {
 				getRoot().logout();
 			}
 		});
-		composition();
 	}
 	
+	@Override
+	protected AbstractPanel postConstruct() {
+		dialog = new ItemDialog(getRoot());
+		
+		model  = new ItemsTableModel(getItemDAO());
+		table  = new JTable(model);
+		sorter = new TableRowSorter<ItemsTableModel>(model);
+		sorter.setSortsOnUpdates(true);
+		table.setRowSorter(sorter);
+		table.setAutoscrolls(true);
+		table.getTableHeader().setReorderingAllowed(false); //disable moving column
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent event) {
+				int row = table.rowAtPoint(event.getPoint());
+				int col = table.columnAtPoint(event.getPoint());
+				if(event.getButton() == MouseEvent.BUTTON3) {
+					table.setRowSelectionInterval(row, row);
+				}
+				model.showPassword(-1);
+				if(event.getButton() == MouseEvent.BUTTON1 && col == 2) { //password column
+					int modelRow = table.convertRowIndexToModel(row);
+					model.showPassword(modelRow);
+				}
+			}
+			@Override
+			public void mouseClicked(MouseEvent event) {
+				if(event.getButton() == MouseEvent.BUTTON1 && event.getClickCount() >= 2) {
+					int row = table.convertRowIndexToModel(table.rowAtPoint(event.getPoint()));
+					Item item = model.getItem(row);
+					StringSelection data = new StringSelection(item.getPassword());
+					Clipboard clipboard  = Toolkit.getDefaultToolkit().getSystemClipboard();
+					clipboard.setContents(data, null);
+					lblStatus.setText(getText(Labels.MESSAGES_COPY_PASSWORD));
+				}
+			}
+		});
+		composition();
+		
+		return this;
+	}
 	
 	@Override
 	protected void init() {
@@ -138,38 +174,6 @@ public class MainPanel extends AbstractPanel {
 	private void composition() {
 		setLayout(new BorderLayout());
 		add(new JScrollPane(table), BorderLayout.CENTER);
-		
-		sorter.setSortsOnUpdates(true);
-		table.setRowSorter(sorter);
-		table.setAutoscrolls(true);
-		table.getTableHeader().setReorderingAllowed(false); //disable moving column
-		
-		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent event) {
-				int row = table.rowAtPoint(event.getPoint());
-				int col = table.columnAtPoint(event.getPoint());
-				if(event.getButton() == MouseEvent.BUTTON3) {
-					table.setRowSelectionInterval(row, row);
-				}
-				model.showPassword(-1);
-				if(event.getButton() == MouseEvent.BUTTON1 && col == 2) { //password column
-					int modelRow = table.convertRowIndexToModel(row);
-					model.showPassword(modelRow);
-				}
-			}
-			@Override
-			public void mouseClicked(MouseEvent event) {
-				if(event.getButton() == MouseEvent.BUTTON1 && event.getClickCount() >= 2) {
-					int row = table.convertRowIndexToModel(table.rowAtPoint(event.getPoint()));
-					Item item = model.getItem(row);
-					StringSelection data = new StringSelection(item.getPassword());
-					Clipboard clipboard  = Toolkit.getDefaultToolkit().getSystemClipboard();
-					clipboard.setContents(data, null);
-					lblStatus.setText(getText(Labels.MESSAGES_COPY_PASSWORD));
-				}
-			}
-		});
 		
 		FlowLayout layout = new FlowLayout(FlowLayout.RIGHT);
 		layout.setVgap(2);
@@ -222,23 +226,24 @@ public class MainPanel extends AbstractPanel {
 	private class StatusLabel extends JLabel {
 		private static final long serialVersionUID = 1L;
 		private static final int TIMEOUT = 5000;
-		private Runnable cleaner;
+		private Timer timer;
 		
 		public StatusLabel() {
-			cleaner = new Runnable() {
+			super();
+			timer = new Timer(TIMEOUT, new ActionListener() {
 				@Override
-				public void run() {
-					try {Thread.sleep(TIMEOUT);} catch(InterruptedException e) {}
+				public void actionPerformed(ActionEvent e) {
 					setText("");
 				}
-			};
+			});
 		}
 		
 		@Override
 		public void setText(String text) {
 			super.setText(text);
-			if(!text.isEmpty()) {
-				new Thread(cleaner).start();
+			if(timer != null) {
+				timer.stop();
+				timer.start();
 			}
 		}
 	}
