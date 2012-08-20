@@ -19,8 +19,10 @@ import home.ingvar.passbook.utils.LOG;
 import home.ingvar.passbook.utils.PROPS;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
@@ -31,7 +33,9 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 public class MainFrame extends JFrame {
@@ -58,18 +62,20 @@ public class MainFrame extends JFrame {
 		i18n.setLocale(properties.getLang());
 		setPreference();
 		
+		//set theme
+		try {
+			UIManager.setLookAndFeel(Themes.valueOf(properties.getTheme()).getClassName());
+			SwingUtilities.updateComponentTreeUI(this);
+		} catch (Exception e) {
+			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't load system theme.\nUsing default", e); //TODO:
+			setTheme(Themes.STANDART);
+		}
+		
 		menuBar = new JMenuBar();
 		menuItems = new LinkedList<IMenuItem>();
 		setJMenuBar(menuBar);
 		createMenu();
-		//set theme
-		try {
-			UIManager.setLookAndFeel(Themes.valueOf(properties.getTheme()).getClassName());
-		} catch (Exception e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't load system theme.\nUsing default", e); //TODO:
-			try {UIManager.setLookAndFeel(Themes.STANDART.getClassName());} catch(Exception ex) {}
-			properties.setTheme(Themes.STANDART.toString());
-		}
+		
 		//chose view
 		Form form = null;
 		try {
@@ -162,37 +168,73 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		//TODO: make current chose bold
+		final Font df = menuBar.getFont();
+		final Font bf = new Font(df.getFamily(), Font.BOLD, df.getSize());
+		
 		JMenu settingsMenu = Menu.create(menuBar, menuItems, Labels.MENU_SETTINGS);
 		Menu langMenu = Menu.create(settingsMenu, menuItems, Labels.MENU_SETTINGS_LANG);
-		//Font pf = langMenu.getFont();
-		//final Font boldFont = new Font(pf.getFamily(), Font.BOLD, pf.getSize());
+		final List<JMenuItem> langs = new LinkedList<JMenuItem>();
 		for(final Locale a : I18n.getAvailable()) {
 			String lbl = a.getDisplayName(a);
 			lbl = lbl.substring(0, 1).toUpperCase() + lbl.substring(1);
-			langMenu.add(lbl).addActionListener(new AbstractAction() {
-				private static final long serialVersionUID = 1L;
+			final JMenuItem lmi = new JMenuItem(lbl);
+			langMenu.add(lmi);
+			langs.add(lmi);
+			if(a.equals(i18n.getLocale())) {
+				lmi.setFont(bf);
+			}
+			lmi.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					i18n.setLocale(a);
 					properties.setLang(i18n.getLocale().getLanguage());
-					//setFont(boldFont);
+					for(JMenuItem i : langs) {
+						i.setFont(df);
+					}
+					lmi.setFont(bf);
 					updateI18n();
 				}
 			});
 		}
 		Menu themeMenu = Menu.create(settingsMenu, menuItems, Labels.MENU_SETTINGS_THEME);
+		final Themes currentTheme = Themes.valueOf(properties.getTheme());
+		final List<JMenuItem> themes = new LinkedList<JMenuItem>();
 		for(final Themes theme : Themes.values()) {
-			MenuItem.create(themeMenu, menuItems, theme.getI18nName(), new AbstractAction() {
-				private static final long serialVersionUID = 1L;
+			final JMenuItem tmi = MenuItem.create(themeMenu, menuItems, theme.getI18nName(), null);
+			themes.add(tmi);
+			if(theme.equals(currentTheme)) {
+				tmi.setFont(bf);
+			}
+			tmi.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					setTheme(theme);
+					for(JMenuItem i : themes) {
+						i.setFont(df);
+					}
+					tmi.setFont(bf);
 				}
 			});
 		}
-		/*for(LookAndFeelInfo lf : UIManager.getInstalledLookAndFeels()) {
-			themeMenu.add(lf.getName()).addActionListener(getLFAction(lf.getClassName()));
+		/*final MainFrame fr = this;
+		for(final LookAndFeelInfo lf : UIManager.getInstalledLookAndFeels()) {
+			themeMenu.add(lf.getName()).addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					try {
+						UIManager.setLookAndFeel(lf.getClassName());
+						SwingUtilities.updateComponentTreeUI(fr);
+						//and update all views
+						if(isVisible()) {
+							for(Form form : Form.values()) {
+								SwingUtilities.updateComponentTreeUI(form.getPanel());
+							}
+						}
+					} catch(Exception e) {
+						LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
+					}
+				}
+			});
 		}*/
 		
 		JMenu aboutMenu = Menu.create(menuBar, menuItems, Labels.MENU_HELP);
@@ -215,7 +257,7 @@ public class MainFrame extends JFrame {
 		Form.LOGIN.setPanel(new LoginPanel(this));
 		Form.MAIN.setPanel(new MainPanel(this));
 		Form.PROFILE.setPanel(new ProfilePanel(this));
-		Form.SETTINGS.setPanel(null); //TODO: create
+		Form.SETTINGS.setPanel(Form.REGISTER.getPanel()); //TODO: create
 	}
 	
 	private void updateTitle() {
@@ -243,14 +285,19 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void setTheme(Themes theme) {
-		setVisible(false);
 		try {
 			UIManager.setLookAndFeel(theme.getClassName());
 			properties.setTheme(theme.toString());
+			SwingUtilities.updateComponentTreeUI(this);
+			//and update all views
+			if(isVisible()) {
+				for(Form form : Form.values()) {
+					SwingUtilities.updateComponentTreeUI(form.getPanel());
+				}
+			}
 		} catch(Exception e) {
 			LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
 		}
-		setVisible(true);
 	}
 	
 	// ------------------ INNER CLASSES ------------------ //

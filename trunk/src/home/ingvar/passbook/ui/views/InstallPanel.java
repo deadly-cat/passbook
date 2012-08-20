@@ -4,15 +4,9 @@ import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
-import home.ingvar.passbook.ui.GBHelper;
 import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.utils.LOG;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -20,23 +14,35 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 public class InstallPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JLabel lblInfo;
 	private JLabel lblDatabase;
 	private JComboBox database;
+	private JTextArea txaLicense;
 	private JButton btnCreate;
 
 	public InstallPanel(MainFrame frame) {
 		super(frame);
-		this.lblInfo = new JLabel();
-		this.lblDatabase = new JLabel();
-		this.database    = new JComboBox();
-		this.btnCreate   = new JButton();
-		//TODO: add license
+		lblDatabase = new JLabel();
+		database    = new JComboBox();
+		txaLicense  = new JTextArea();
+		btnCreate   = new JButton();
+		
+		txaLicense.setEditable(false);
+		for(int i = 0; i < DaoFactory.STORAGES.length; i++) {
+			database.addItem(DaoFactory.STORAGES[i][0]);
+		}
+		btnCreate.addActionListener(new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				createDB();
+			}
+		});
+		
 		composition();
 	}
 
@@ -47,9 +53,9 @@ public class InstallPanel extends AbstractPanel {
 
 	@Override
 	protected void updateI18n() {
-		lblInfo.setText("  " + getText(Labels.MESSAGES_NOT_CREATE));
 		lblDatabase.setText(getText(Labels.LABELS_DATABASE)+":");
 		btnCreate.setText(getText(Labels.BUTTONS_CREATE));
+		txaLicense.setText(getLicense());
 	}
 	
 	private void createDB() {
@@ -71,41 +77,31 @@ public class InstallPanel extends AbstractPanel {
 	}
 
 	private void composition() {
-		setLayout(new BorderLayout());
 		
-		add(lblInfo, BorderLayout.NORTH);
-		lblInfo.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
-		lblInfo.setForeground(Color.RED);
+		
+		
+		/*
+		setLayout(new BorderLayout());
 		
 		JPanel settings = new JPanel(new GridBagLayout());
 		//place west panel
 		JPanel west = new JPanel(new BorderLayout());
-		add(west, BorderLayout.WEST);
+		add(west, BorderLayout.NORTH);
 		//place north panel
 		JPanel north = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		west.add(north, BorderLayout.NORTH);
 		north.add(settings);
-		
 		GBHelper helper = new GBHelper();
 		settings.add(lblDatabase, helper.grid(0, 0).setAnchor(GBHelper.LINE_END));
 		settings.add(database, helper.grid(0, 1).setAnchor(GBHelper.LINE_START));
 		
+		add(txaLicense, BorderLayout.CENTER);
+		
 		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		add(buttons, BorderLayout.SOUTH);
-		
 		buttons.add(btnCreate);
+		*/
 		
-		for(int i = 0; i < DaoFactory.STORAGES.length; i++) {
-			database.addItem(DaoFactory.STORAGES[i][0]);
-		}
-		
-		btnCreate.addActionListener(new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				createDB();
-			}
-		});
 	}
 	
 }
