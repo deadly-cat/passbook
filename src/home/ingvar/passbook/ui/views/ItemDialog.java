@@ -4,7 +4,7 @@ import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
-import home.ingvar.passbook.ui.GBHelper;
+import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.utils.PassGen;
@@ -149,27 +149,27 @@ public class ItemDialog extends JDialog {
 		
 		JPanel view = new JPanel(new GridBagLayout());
 		add(view, BorderLayout.WEST);
-		GBHelper helper = new GBHelper();
+		GBH helper = new GBH();
 		
-		helper.setAnchor(GBHelper.LINE_END);
+		helper.setAnchor(GBH.LINE_END);
 		view.add(lblService, helper.grid(0, 0));
 		view.add(lblUsername, helper.grid(1, 0));
 		view.add(lblPassword, helper.grid(2, 0));
 		view.add(lblComment, helper.grid(3, 0));
-		helper.setAnchor(GBHelper.LINE_START);
-		helper.setWidth(GBHelper.REMAINDER);
+		helper.setAnchor(GBH.LINE_START);
+		helper.setWidth(GBH.REMAINDER);
 		view.add(service, helper.grid(0, 1));
 		view.add(username, helper.grid(1, 1));
 		view.add(comment, helper.grid(3, 1));
 		
-		helper.setWidth(GBHelper.RELATIVE);
+		helper.setWidth(GBH.RELATIVE);
 		view.add(password, helper.grid(2, 1));
 		helper.setInsets(0, 2, 0, 0);
 		view.add(btnGenerate, helper.grid(2, 3));
 		
-		helper.setWidth(GBHelper.REMAINDER);
+		helper.setWidth(GBH.REMAINDER);
 		helper.setInsets(10, 0, 10, 0);
-		view.add(buttons, helper.grid(4, 0).setAnchor(GBHelper.LINE_END));
+		view.add(buttons, helper.grid(4, 0).setAnchor(GBH.LINE_END));
 		
 		btnOk.addActionListener(new AbstractAction() {
 			private static final long serialVersionUID = 1L;

@@ -28,6 +28,10 @@ public abstract class AbstractPanel extends JPanel {
 		return i18n.get(name);
 	}
 	
+	public String getLicense() {
+		return i18n.getLicenseText();
+	}
+	
 	public MainFrame getRoot() {
 		return frame;
 	}

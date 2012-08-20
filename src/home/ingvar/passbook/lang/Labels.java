@@ -28,7 +28,6 @@ public interface Labels {
 	String LABELS_DELETE_PROFILE = "labels.delete-profile";
 	String LABELS_SYSTEM = "labels.system";
 	String LABELS_STANDARD = "labels.standard";
-	String MESSAGES_NOT_CREATE = "messages.not-create";
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";
 	String MESSAGES_ITEM_NOT_SELECT = "messages.item-not-select";

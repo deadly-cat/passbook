@@ -19,7 +19,7 @@ public class Creator {
 		Scanner in = new Scanner(file);
 		while(in.hasNextLine()) {
 			String line = in.nextLine().trim();
-			if(!line.isEmpty()) {
+			if(!line.isEmpty() && !line.startsWith("#")) {
 				String[] m = line.split("=");
 				String name = m[0].trim().replaceAll("\\.", "_").replaceAll("-", "_").toUpperCase();
 				cnt.append("\tString ").append(name).append(" = \"").append(m[0].trim()).append("\";\n");

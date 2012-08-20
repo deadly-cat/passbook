@@ -5,7 +5,7 @@ import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
-import home.ingvar.passbook.ui.GBHelper;
+import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.utils.LOG;
 
@@ -57,20 +57,20 @@ public class RegPanel extends AbstractPanel {
 		
 		setLayout(new GridBagLayout());
 		
-		GBHelper helper = new GBHelper();
-		helper.setAnchor(GBHelper.LINE_END);
+		GBH helper = new GBH();
+		helper.setAnchor(GBH.LINE_END);
 		add(lblUsername, helper.grid(0, 0));
 		add(lblPassword, helper.grid(1, 0));
 		add(lblConfirm, helper.grid(2, 0));
 		add(lblFullname, helper.grid(3, 0));
-		helper.setAnchor(GBHelper.LINE_START);
+		helper.setAnchor(GBH.LINE_START);
 		add(username, helper.grid(0, 1));
 		add(password, helper.grid(1, 1));
 		add(confirm, helper.grid(2, 1));
 		add(fullname, helper.grid(3, 1));
 		
 		JPanel buttons = new JPanel();
-		add(buttons, helper.grid(4, 0).setWidth(GBHelper.REMAINDER).setAnchor(GBHelper.LINE_END));
+		add(buttons, helper.grid(4, 0).setWidth(GBH.REMAINDER).setAnchor(GBH.LINE_END));
 		buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
 		buttons.add(btnCancel);
 		buttons.add(Box.createRigidArea(new Dimension(10, 0)));
