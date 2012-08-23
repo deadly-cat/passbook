@@ -7,6 +7,7 @@ import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.ui.views.InstallPanel;
+import home.ingvar.passbook.ui.views.ItemDialog;
 import home.ingvar.passbook.ui.views.LoginPanel;
 import home.ingvar.passbook.ui.views.MainPanel;
 import home.ingvar.passbook.ui.views.ProfilePanel;
@@ -43,6 +44,7 @@ public class MainFrame extends JFrame {
 	
 	private AbstractPanel view; //current view
 	private User user; //current user
+	private ItemDialog dialog;
 	
 	private DaoFactory daoFactory;
 	private UserDAO userDAO;
@@ -65,6 +67,7 @@ public class MainFrame extends JFrame {
 		menu = new Menu();
 		setJMenuBar(menu.getBar());
 		createMenu();
+		dialog = new ItemDialog(this);
 		
 		//chose view
 		Form form = null;
@@ -80,6 +83,7 @@ public class MainFrame extends JFrame {
 		}
 		createForms();
 		nextView(form);
+		updateI18n();
 	}
 	
 	public DaoFactory getDaoFactory() {
@@ -108,12 +112,16 @@ public class MainFrame extends JFrame {
 			remove(view);
 		}
 		view = form.getPanel();
-		view.init();
+		view.preShow();
 		view.updateI18n();
 		getRootPane().setDefaultButton(view.getDefaultButton());
 		add(view);
 		view.revalidate();
 		repaint();
+	}
+	
+	public ItemDialog getItemDialog() {
+		return dialog;
 	}
 	
 	public void logout() {
@@ -200,8 +208,6 @@ public class MainFrame extends JFrame {
 				JOptionPane.showMessageDialog(null, "Created by: Igor Zubenko(igor.a.zubenko@gmail.com)\nLicensed by: http://opensource.org/licenses/BSD-3-Clause", "About", JOptionPane.INFORMATION_MESSAGE); //TODO: i18n
 			}
 		});
-		
-		menu.updateI18n();
 	}
 	
 	private void createForms() {
@@ -225,6 +231,7 @@ public class MainFrame extends JFrame {
 		updateTitle();
 		menu.updateI18n();
 		view.updateI18n();
+		dialog.updateI18n();
 	}
 	
 	private void close() {
@@ -241,6 +248,7 @@ public class MainFrame extends JFrame {
 			properties.setTheme(theme.toString());
 			SwingUtilities.updateComponentTreeUI(this);
 			menu.updateMenuStyle();
+			SwingUtilities.updateComponentTreeUI(dialog);
 			//and update all views
 			if(isVisible()) {
 				for(Form form : Form.values()) {

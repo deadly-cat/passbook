@@ -8,13 +8,11 @@ import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.utils.LOG;
 
-import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -67,27 +65,25 @@ public class LoginPanel extends AbstractPanel {
 			}
 		});
 		
-		//composition
 		setLayout(new GridBagLayout());
 		
-		GBH helper = new GBH();
-		helper.setAnchor(GBH.LINE_END);
-		add(lblUsername, helper.grid(0, 0));
-		add(lblPassword, helper.grid(1, 0));
-		helper.setAnchor(GBH.LINE_START);
-		add(fldUsername, helper.grid(0, 1));
-		add(fldPassword, helper.grid(1, 1));
 		
-		JPanel buttons = new JPanel();
-		add(buttons, helper.grid(2, 0).setWidth(GBH.REMAINDER).setAnchor(GBH.LINE_END));
-		buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
-		buttons.add(btnRegister);
-		buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttons.add(btnLogin);
+		//first row
+		add(lblUsername, GBH.get(5, 5, 5, 5));
+		add(fldUsername, GBH.get(5, 5, 5, 5).anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		//second row
+		add(lblPassword, GBH.get(5, 5, 5, 5));
+		add(fldPassword, GBH.get(5, 5, 5, 5).anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		//third row
+		//I tried use only GridBagLayout, but for this composition it's impossible :(
+		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		add(btns, GBH.get(0, 0, 0, 0).anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		btns.add(btnRegister);
+		btns.add(btnLogin);
 	}
 
 	@Override
-	protected void init() {
+	protected void preShow() {
 		fldUsername.setText("");
 		fldPassword.setText("");
 	}

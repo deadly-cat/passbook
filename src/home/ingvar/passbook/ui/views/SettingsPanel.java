@@ -9,7 +9,7 @@ public class SettingsPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected void init() {
+	protected void preShow() {
 		// TODO Auto-generated method stub
 
 	}

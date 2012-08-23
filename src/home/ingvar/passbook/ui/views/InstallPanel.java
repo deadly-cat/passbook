@@ -4,8 +4,11 @@ import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
+import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.utils.LOG;
 
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -13,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class InstallPanel extends AbstractPanel {
@@ -30,6 +34,9 @@ public class InstallPanel extends AbstractPanel {
 		btnCreate   = new JButton();
 		
 		txaLicense.setEditable(false);
+		txaLicense.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+		txaLicense.setLineWrap(true);
+		txaLicense.setWrapStyleWord(true);
 		for(int i = 0; i < DaoFactory.STORAGES.length; i++) {
 			database.addItem(DaoFactory.STORAGES[i][0]);
 		}
@@ -41,11 +48,21 @@ public class InstallPanel extends AbstractPanel {
 			}
 		});
 		
-		composition();
+		setLayout(new GridBagLayout());
+		
+		//first row
+		add(lblDatabase, GBH.get());
+		add(database, GBH.get());
+		add(new JLabel(), GBH.get().width(GBH.REMAINDER).weightx(1.0));
+		//second row
+		add(new JScrollPane(txaLicense), GBH.get().fill(GBH.BOTH).width(GBH.REMAINDER).weighty(1.0));
+		//third row
+		add(new JLabel(), GBH.get().width(2).weightx(1.0));
+		add(btnCreate, GBH.get().anchor(GBH.LINE_END));
 	}
 
 	@Override
-	protected void init() {
+	protected void preShow() {
 		//nothing to do here
 	}
 
@@ -72,34 +89,6 @@ public class InstallPanel extends AbstractPanel {
 	@Override
 	protected JButton getDefaultButton() {
 		return btnCreate;
-	}
-
-	private void composition() {
-		
-		
-		
-		/*
-		setLayout(new BorderLayout());
-		
-		JPanel settings = new JPanel(new GridBagLayout());
-		//place west panel
-		JPanel west = new JPanel(new BorderLayout());
-		add(west, BorderLayout.NORTH);
-		//place north panel
-		JPanel north = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		west.add(north, BorderLayout.NORTH);
-		north.add(settings);
-		GBHelper helper = new GBHelper();
-		settings.add(lblDatabase, helper.grid(0, 0).setAnchor(GBHelper.LINE_END));
-		settings.add(database, helper.grid(0, 1).setAnchor(GBHelper.LINE_START));
-		
-		add(txaLicense, BorderLayout.CENTER);
-		
-		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		add(buttons, BorderLayout.SOUTH);
-		buttons.add(btnCreate);
-		*/
-		
 	}
 	
 }
