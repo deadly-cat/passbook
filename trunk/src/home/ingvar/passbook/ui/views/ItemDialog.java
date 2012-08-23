@@ -1,22 +1,20 @@
 package home.ingvar.passbook.ui.views;
 
-import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.GBH;
+import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.utils.PassGen;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -33,7 +31,7 @@ import javax.swing.JTextField;
 public class ItemDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	private final MainFrame frame;
+	
 	private final I18n i18n;
 	private Item item;
 	private boolean isOk;
@@ -54,8 +52,7 @@ public class ItemDialog extends JDialog {
 	
 	public ItemDialog(MainFrame frame) {
 		super(frame, "", true);
-		this.frame = frame;
-		this.i18n  = I18n.getInstance();
+		this.i18n = I18n.getInstance();
 		
 		this.lblService  = new JLabel();
 		this.lblUsername = new JLabel();
@@ -71,8 +68,53 @@ public class ItemDialog extends JDialog {
 		this.btnCancel = new JButton();
 		this.btnGenerate = new JButton();
 		
-		composition();
-		updateI18n();
+		setLocationRelativeTo(frame);
+		setResizable(false);
+		getRootPane().setDefaultButton(btnOk);
+		
+		btnOk.addActionListener(new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if(isCorrect()) {
+					isOk = true;
+					setVisible(false);
+				}
+			}
+		});
+		btnCancel.addActionListener(new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+			}
+		});
+		btnGenerate.setIcon(new ImageIcon(IMG.PASSGEN.getImage()));
+		btnGenerate.setPreferredSize(new Dimension(25, 20));
+		btnGenerate.addActionListener(new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				password.setText(PassGen.generate(8)); //TODO:
+			}
+		});
+		
+		setLayout(new GridBagLayout());
+		add(lblService, GBH.get());
+		add(service, GBH.get().fill(GBH.HORIZONTAL).width(GBH.REMAINDER));
+		add(lblUsername, GBH.get());
+		add(username, GBH.get().fill(GBH.HORIZONTAL).width(GBH.REMAINDER));
+		add(lblPassword, GBH.get());
+		JPanel pwd = new JPanel();
+		add(pwd, GBH.get(0, 0, 0, 0).fill(GBH.HORIZONTAL).width(GBH.REMAINDER));
+		pwd.add(password);
+		pwd.add(btnGenerate);
+		add(lblComment, GBH.get());
+		add(comment, GBH.get().fill(GBH.HORIZONTAL).width(GBH.REMAINDER));
+		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		add(btns, GBH.get(0, 0, 0, 0).width(2).anchor(GBH.LINE_END));
+		btns.add(btnCancel);
+		btns.add(btnOk);
 	}
 	
 	public void setItem(Item value) {
@@ -96,6 +138,7 @@ public class ItemDialog extends JDialog {
 	}
 	
 	public Item showDialog(Item editing) {
+		pack();
 		isOk = false;
 		setItem(editing);
 		service.requestFocusInWindow();
@@ -114,7 +157,6 @@ public class ItemDialog extends JDialog {
 		lblComment.setText(i18n.get(Labels.LABELS_COMMENT)+":");
 		btnOk.setText(i18n.get(Labels.BUTTONS_OK));
 		btnCancel.setText(i18n.get(Labels.BUTTONS_CANCEL));
-		pack();
 	}
 	
 	private boolean isCorrect() {
@@ -134,69 +176,4 @@ public class ItemDialog extends JDialog {
 		return true;
 	}
 	
-	private void composition() {
-		setLocationRelativeTo(frame);
-		setResizable(false);
-		getRootPane().setDefaultButton(btnOk);
-		
-		//buttons panel
-		JPanel buttons = new JPanel();
-		buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
-		buttons.add(btnOk);
-		buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttons.add(btnCancel);
-		buttons.add(Box.createRigidArea(new Dimension(6, 0)));
-		
-		JPanel view = new JPanel(new GridBagLayout());
-		add(view, BorderLayout.WEST);
-		GBH helper = new GBH();
-		
-		helper.setAnchor(GBH.LINE_END);
-		view.add(lblService, helper.grid(0, 0));
-		view.add(lblUsername, helper.grid(1, 0));
-		view.add(lblPassword, helper.grid(2, 0));
-		view.add(lblComment, helper.grid(3, 0));
-		helper.setAnchor(GBH.LINE_START);
-		helper.setWidth(GBH.REMAINDER);
-		view.add(service, helper.grid(0, 1));
-		view.add(username, helper.grid(1, 1));
-		view.add(comment, helper.grid(3, 1));
-		
-		helper.setWidth(GBH.RELATIVE);
-		view.add(password, helper.grid(2, 1));
-		helper.setInsets(0, 2, 0, 0);
-		view.add(btnGenerate, helper.grid(2, 3));
-		
-		helper.setWidth(GBH.REMAINDER);
-		helper.setInsets(10, 0, 10, 0);
-		view.add(buttons, helper.grid(4, 0).setAnchor(GBH.LINE_END));
-		
-		btnOk.addActionListener(new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				if(isCorrect()) {
-					isOk = true;
-					setVisible(false);
-				}
-			}
-		});
-		btnCancel.addActionListener(new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-			}
-		});
-		btnGenerate.setIcon(new ImageIcon(IMG.PASSGEN.getImage()));
-		btnGenerate.setPreferredSize(new Dimension(25, 19));
-		btnGenerate.addActionListener(new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				password.setText(PassGen.generate(8));
-			}
-		});
-	}
-
 }

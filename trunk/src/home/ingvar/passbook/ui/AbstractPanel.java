@@ -4,6 +4,7 @@ import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.ui.views.ItemDialog;
 import home.ingvar.passbook.utils.I18n;
 
 import javax.swing.JButton;
@@ -19,36 +20,40 @@ public abstract class AbstractPanel extends JPanel {
 		frame.nextView(form);
 	}
 	
-	public String getText(String name) {
+	protected String getText(String name) {
 		return i18n.get(name);
 	}
 	
-	public String getLicense() {
+	protected String getLicense() {
 		return i18n.getLicenseText();
 	}
 	
-	public MainFrame getRoot() {
+	protected MainFrame getRoot() {
 		return frame;
 	}
 	
-	public DaoFactory getDaoFactory() {
+	protected DaoFactory getDaoFactory() {
 		return frame.getDaoFactory();
 	}
 	
-	public UserDAO getUserDAO() {
+	protected UserDAO getUserDAO() {
 		return frame.getUserDAO();
 	}
 	
-	public ItemDAO getItemDAO() {
+	protected ItemDAO getItemDAO() {
 		return frame.getItemDAO();
 	}
 	
-	public User getUser() {
+	protected User getUser() {
 		return frame.getUser();
 	}
 	
-	public void setUser(User user) {
+	protected void setUser(User user) {
 		frame.setUser(user);
+	}
+	
+	protected ItemDialog getItemDialog() {
+		return frame.getItemDialog();
 	}
 	
 	protected AbstractPanel inject(MainFrame frame) {
@@ -61,7 +66,7 @@ public abstract class AbstractPanel extends JPanel {
 		return this;
 	}
 	
-	protected abstract void init();
+	protected abstract void preShow();
 	protected abstract void updateI18n();
 	protected abstract JButton getDefaultButton();
 	

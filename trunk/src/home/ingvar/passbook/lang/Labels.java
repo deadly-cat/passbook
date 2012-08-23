@@ -22,12 +22,13 @@ public interface Labels {
 	String LABELS_ALGORITHM = "labels.algorithm";
 	String LABELS_SERVICE = "labels.service";
 	String LABELS_COMMENT = "labels.comment";
-	String LABELS_CHANGE_PASSWORD = "labels.change-password";
 	String LABELS_PASSWORD_OLD = "labels.password.old";
 	String LABELS_PASSWORD_NEW = "labels.password.new";
 	String LABELS_DELETE_PROFILE = "labels.delete-profile";
 	String LABELS_SYSTEM = "labels.system";
 	String LABELS_STANDARD = "labels.standard";
+	String LABELS_CHANGE_FULLNAME = "labels.change-fullname";
+	String LABELS_CHANGE_PASSWORD = "labels.change-password";
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";
 	String MESSAGES_ITEM_NOT_SELECT = "messages.item-not-select";

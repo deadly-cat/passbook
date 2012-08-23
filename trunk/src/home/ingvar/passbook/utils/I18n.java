@@ -75,10 +75,12 @@ public class I18n {
 	private void loadLicense() {
 		licenseText = "";
 		InputStream io = I18n.class.getResourceAsStream(LCNS_PATH + "_" + current.getLanguage());
-		for(Locale l : available) {
-			io = I18n.class.getResourceAsStream(LCNS_PATH + "_" + l.getLanguage());
-			if(io != null) {
-				break;
+		if(io == null) {
+			for(Locale l : available) {
+				io = I18n.class.getResourceAsStream(LCNS_PATH + "_" + l.getLanguage());
+				if(io != null) {
+					break;
+				}
 			}
 		}
 		if(io != null) {

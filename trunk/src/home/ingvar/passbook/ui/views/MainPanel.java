@@ -5,13 +5,12 @@ import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
+import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.ItemsTableModel;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.LOG;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -28,13 +27,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
-import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
@@ -59,10 +56,10 @@ public class MainPanel extends AbstractPanel {
 	private Action actEdit;
 	private Action actDelete;
 	
-	private ItemDialog dialog;
+	private PasswordCopier copier;
 	
 	public MainPanel() {
-		lblStatus  = new StatusLabel();
+		lblStatus  = new JLabel();
 		lblService = new JLabel();
 		fldService = new JTextField(15);
 		actAdd = new ViewItemAction("", new ImageIcon(IMG.ADD_ITEM.getImage()), true);
@@ -86,12 +83,25 @@ public class MainPanel extends AbstractPanel {
 				getRoot().logout();
 			}
 		});
+		fldService.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent event) {
+				filter(fldService.getText());
+			}
+			@Override
+			public void insertUpdate(DocumentEvent event) {
+				filter(fldService.getText());
+			}
+			@Override
+			public void changedUpdate(DocumentEvent event) {
+				filter(fldService.getText());
+			}
+		});
 	}
 	
 	@Override
 	protected AbstractPanel postConstruct() {
-		dialog = new ItemDialog(getRoot());
-		
+		copier = new PasswordCopier();
 		model  = new ItemsTableModel(getItemDAO());
 		table  = new JTable(model);
 		sorter = new TableRowSorter<ItemsTableModel>(model);
@@ -119,20 +129,39 @@ public class MainPanel extends AbstractPanel {
 				if(event.getButton() == MouseEvent.BUTTON1 && event.getClickCount() >= 2) {
 					int row = table.convertRowIndexToModel(table.rowAtPoint(event.getPoint()));
 					Item item = model.getItem(row);
-					StringSelection data = new StringSelection(item.getPassword());
-					Clipboard clipboard  = Toolkit.getDefaultToolkit().getSystemClipboard();
-					clipboard.setContents(data, null);
-					lblStatus.setText(getText(Labels.MESSAGES_COPY_PASSWORD));
+					copier.copy(item.getPassword());
 				}
 			}
 		});
-		composition();
+		JPopupMenu popup = new JPopupMenu();
+		popup.add(new JMenuItem(actAdd));
+		popup.add(new JMenuItem(actEdit));
+		popup.add(new JMenuItem(actDelete));
+		table.setComponentPopupMenu(popup);
+		
+		setLayout(new GridBagLayout());
+		//1
+		add(btnAdd, GBH.get(5, 5, 5, 0));
+		add(btnEdit, GBH.get(5, 5, 5, 0));
+		add(btnDelete, GBH.get(5, 5, 5, 0));
+		add(lblService, GBH.get(5, 5, 5, 0));
+		add(fldService, GBH.get().fill(GBH.HORIZONTAL).weightx(0.6));
+		add(new JLabel(), GBH.get(0, 0, 0, 0).weightx(0.4));
+		add(btnProfile, GBH.get(5, 5, 5, 0));
+		add(btnLogout, GBH.get());
+		add(new JLabel(), GBH.get(0, 0, 0, 0).width(GBH.REMAINDER));
+		//2
+		add(new JScrollPane(table), GBH.get().fill(GBH.BOTH).weightx(1.0).weighty(1.0).width(8));
+		add(new JLabel(), GBH.get(0, 0, 0, 0).width(GBH.REMAINDER));
+		//3
+		add(lblStatus, GBH.get(0, 0, 5, 5).width(GBH.RELATIVE).anchor(GBH.LINE_END));
+		add(new JLabel(), GBH.get(0, 0, 0, 0).width(GBH.REMAINDER));
 		
 		return this;
 	}
 	
 	@Override
-	protected void init() {
+	protected void preShow() {
 		fldService.setText("");
 		try {
 			List<Item> items = getItemDAO().list(getUser());
@@ -151,7 +180,6 @@ public class MainPanel extends AbstractPanel {
 		btnAdd.setText("");
 		btnEdit.setText("");
 		btnDelete.setText("");
-		dialog.updateI18n();
 		for(int i = 0; i < table.getColumnCount(); i++) {
 			table.getColumnModel().getColumn(i).setHeaderValue(model.getColumnName(i));
 		}
@@ -171,84 +199,63 @@ public class MainPanel extends AbstractPanel {
 		}
 	}
 	
-	private void composition() {
-		setLayout(new BorderLayout());
-		add(new JScrollPane(table), BorderLayout.CENTER);
-		
-		FlowLayout layout = new FlowLayout(FlowLayout.RIGHT);
-		layout.setVgap(2);
-		JPanel statusPanel = new JPanel(layout);
-		add(statusPanel, BorderLayout.SOUTH);
-		statusPanel.add(lblStatus);
-		statusPanel.setPreferredSize(new Dimension(getRoot().getWidth(), lblStatus.getFont().getSize() + 10));
-		
-		JPanel wrapControls = new JPanel(new BorderLayout());
-		add(wrapControls, BorderLayout.NORTH);
-		
-		JPanel itemControls = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		wrapControls.add(itemControls, BorderLayout.WEST);
-		
-		itemControls.add(btnAdd);
-		itemControls.add(btnEdit);
-		itemControls.add(btnDelete);
-		
-		itemControls.add(lblService);
-		fldService.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void removeUpdate(DocumentEvent event) {
-				filter(fldService.getText());
-			}
-			@Override
-			public void insertUpdate(DocumentEvent event) {
-				filter(fldService.getText());
-			}
-			@Override
-			public void changedUpdate(DocumentEvent event) {
-				filter(fldService.getText());
-			}
-		});
-		itemControls.add(fldService);
-		
-		JPanel userControls = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		wrapControls.add(userControls);
-		userControls.add(btnProfile, BorderLayout.EAST);
-		userControls.add(btnLogout);
-		
-		JPopupMenu popup = new JPopupMenu();
-		popup.add(new JMenuItem(actAdd));
-		popup.add(new JMenuItem(actEdit));
-		popup.add(new JMenuItem(actDelete));
-		table.setComponentPopupMenu(popup);
-	}
-	
 	// ------------- INNER CLASSES ------------- //
 	
-	private class StatusLabel extends JLabel {
-		private static final long serialVersionUID = 1L;
-		private static final int TIMEOUT = 5000;
-		private Timer timer;
+	private class PasswordCopier {
 		
-		public StatusLabel() {
-			super();
-			timer = new Timer(TIMEOUT, new ActionListener() {
+		private final int EXPIRATION_TIME; //in seconds
+		private final StringSelection EMPTY;
+		private final String TEXT;
+		private final Clipboard CLIPBOARD;
+		private volatile boolean isRunning;
+		private volatile boolean mayStart;
+		
+		
+		public PasswordCopier() {
+			EXPIRATION_TIME = 15; //TODO
+			EMPTY = new StringSelection("");
+			TEXT = getText(Labels.MESSAGES_COPY_PASSWORD);
+			CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
+			isRunning = false;
+			mayStart = true;
+		}
+		
+		public void copy(String password) {
+			stop();
+			isRunning = true;
+			mayStart = false;
+			StringSelection data = new StringSelection(password);
+			CLIPBOARD.setContents(data, null);
+			start();
+		}
+		
+		private void stop() {
+			isRunning = false;
+			while(!mayStart);
+		}
+		
+		private void start() {
+			new Thread() {
 				@Override
-				public void actionPerformed(ActionEvent e) {
-					setText("");
+				public void run() {
+					int timer = EXPIRATION_TIME + 1;
+					while(timer--> 1 && isRunning) {
+						lblStatus.setText(TEXT + timer);
+						try {Thread.sleep(1000);}catch(InterruptedException e){}
+					}
+					clear();
+					isRunning = false;
+					mayStart = true;
 				}
-			});
+			}.start();
 		}
 		
-		@Override
-		public void setText(String text) {
-			super.setText(text);
-			if(timer != null) {
-				timer.stop();
-				timer.start();
-			}
+		private void clear() {
+			lblStatus.setText("");
+			CLIPBOARD.setContents(EMPTY, null);
 		}
+		
 	}
-	
-	
 	
 	private class ViewItemAction extends AbstractAction {
 		private static final long serialVersionUID = 1L;
@@ -269,7 +276,7 @@ public class MainPanel extends AbstractPanel {
 		}
 		
 		private void add() {
-			Item item = dialog.showDialog(getUser());
+			Item item = getItemDialog().showDialog(getUser());
 			if(item != null) {
 				try {
 					model.addItem(item);
@@ -286,7 +293,7 @@ public class MainPanel extends AbstractPanel {
 				return;
 			}
 			int row = table.convertRowIndexToModel(viewRow);
-			Item item = dialog.showDialog(model.getItem(row).clone());
+			Item item = getItemDialog().showDialog(model.getItem(row).clone());
 			if(item != null) {
 				try {
 					model.updateItem(item);

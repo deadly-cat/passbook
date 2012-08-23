@@ -8,13 +8,11 @@ import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.utils.LOG;
 
-import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -31,19 +29,19 @@ public class RegPanel extends AbstractPanel {
 	private JLabel lblPassword;
 	private JLabel lblConfirm;
 	
-	private JTextField username;
-	private JTextField fullname;
-	private JTextField password;
-	private JTextField confirm;
+	private JTextField fldUsername;
+	private JTextField fldFullname;
+	private JTextField fldPassword;
+	private JTextField fldConfirm;
 	
 	private JButton btnRegister;
 	private JButton btnCancel;
 	
 	public RegPanel() {
-		this.username = new JTextField(15);
-		this.fullname = new JTextField(15);
-		this.password = new JPasswordField(15);
-		this.confirm  = new JPasswordField(15);
+		this.fldUsername = new JTextField(15);
+		this.fldFullname = new JTextField(15);
+		this.fldPassword = new JPasswordField(15);
+		this.fldConfirm  = new JPasswordField(15);
 		
 		this.lblUsername = new JLabel();
 		this.lblFullname = new JLabel();
@@ -52,27 +50,6 @@ public class RegPanel extends AbstractPanel {
 		
 		this.btnRegister = new JButton();
 		this.btnCancel   = new JButton();
-		
-		setLayout(new GridBagLayout());
-		
-		GBH helper = new GBH();
-		helper.setAnchor(GBH.LINE_END);
-		add(lblUsername, helper.grid(0, 0));
-		add(lblPassword, helper.grid(1, 0));
-		add(lblConfirm, helper.grid(2, 0));
-		add(lblFullname, helper.grid(3, 0));
-		helper.setAnchor(GBH.LINE_START);
-		add(username, helper.grid(0, 1));
-		add(password, helper.grid(1, 1));
-		add(confirm, helper.grid(2, 1));
-		add(fullname, helper.grid(3, 1));
-		
-		JPanel buttons = new JPanel();
-		add(buttons, helper.grid(4, 0).setWidth(GBH.REMAINDER).setAnchor(GBH.LINE_END));
-		buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
-		buttons.add(btnCancel);
-		buttons.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttons.add(btnRegister);
 		
 		btnRegister.addActionListener(new AbstractAction() {
 			private static final long serialVersionUID = 1L;
@@ -88,14 +65,40 @@ public class RegPanel extends AbstractPanel {
 				show(Form.LOGIN);
 			}
 		});
+		
+		setLayout(new GridBagLayout());
+		
+		//zero row
+		add(ph(), GBH.get());
+		add(ph(), GBH.get().anchor(GBH.LINE_END));
+		add(ph(), GBH.get());
+		add(ph(), GBH.get().width(GBH.REMAINDER));
+		//first
+		add(lblUsername, GBH.get());
+		add(fldUsername, GBH.get().anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		//second
+		add(lblPassword, GBH.get());
+		add(fldPassword, GBH.get().anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		//third
+		add(lblConfirm, GBH.get());
+		add(fldConfirm, GBH.get().anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		//fourth
+		add(lblFullname, GBH.get());
+		add(fldFullname, GBH.get().anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		//fifth
+		//I tried use only GridBagLayout, but for this composition it's impossible :(
+		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		add(btns, GBH.get(0, 0, 0, 0).anchor(GBH.LINE_END).width(GBH.REMAINDER));
+		btns.add(btnCancel);
+		btns.add(btnRegister);
 	}
 
 	@Override
-	protected void init() {
-		username.setText("");
-		fullname.setText("");
-		password.setText("");
-		confirm.setText("");
+	protected void preShow() {
+		fldUsername.setText("");
+		fldFullname.setText("");
+		fldPassword.setText("");
+		fldConfirm.setText("");
 	}
 
 	@Override
@@ -115,19 +118,19 @@ public class RegPanel extends AbstractPanel {
 	}
 
 	private void register() {
-		String p = password.getText().trim();
-		String c = confirm.getText().trim();
+		String p = fldPassword.getText().trim();
+		String c = fldConfirm.getText().trim();
 		if(p.isEmpty()) {
 			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORD_EMPTY), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
-			confirm.setText("");
+			fldConfirm.setText("");
 		}
 		else if(!p.equals(c)) {
 			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORDS_NOT_EQUALS), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
-			password.setText("");
-			confirm.setText("");
+			fldPassword.setText("");
+			fldConfirm.setText("");
 		}
 		else {
-			User user = new User(username.getText().trim(), p, fullname.getText().trim());
+			User user = new User(fldUsername.getText().trim(), p, fldFullname.getText().trim());
 			try {
 				if(!getDaoFactory().isOpen()) {
 					getDaoFactory().open();
@@ -137,11 +140,18 @@ public class RegPanel extends AbstractPanel {
 				show(Form.MAIN);
 				
 			} catch(ResultException e) {
-				password.setText("");
-				confirm.setText("");
+				fldPassword.setText("");
+				fldConfirm.setText("");
 				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 			}
 		}
+	}
+	
+	private JLabel ph() { //placeholder
+		JLabel lbl = new JLabel("INVIS");
+		//lbl.setForeground(getBackground());
+		lbl.setVisible(false);
+		return lbl;
 	}
 
 }
