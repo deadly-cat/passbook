@@ -29,6 +29,9 @@ public interface Labels {
 	String LABELS_STANDARD = "labels.standard";
 	String LABELS_CHANGE_FULLNAME = "labels.change-fullname";
 	String LABELS_CHANGE_PASSWORD = "labels.change-password";
+	String LABELS_PASSWORD_TIMEOUT = "labels.password-timeout";
+	String LABELS_PASSWORD_LENGHT = "labels.password-lenght";
+	String LABELS_SECONDS = "labels.seconds";
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";
 	String MESSAGES_ITEM_NOT_SELECT = "messages.item-not-select";
@@ -53,5 +56,6 @@ public interface Labels {
 	String BUTTONS_ITEM_EDIT = "buttons.item.edit";
 	String BUTTONS_ITEM_DELETE = "buttons.item.delete";
 	String BUTTONS_GENERATE = "buttons.generate";
+	String BUTTONS_APPLY = "buttons.apply";
 
 }

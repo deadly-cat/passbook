@@ -7,6 +7,7 @@ import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.utils.PROPS;
 import home.ingvar.passbook.utils.PassGen;
 
 import java.awt.Dimension;
@@ -35,6 +36,7 @@ public class ItemDialog extends JDialog {
 	private final I18n i18n;
 	private Item item;
 	private boolean isOk;
+	private int passLenght;
 	
 	private JLabel lblService;
 	private JLabel lblUsername;
@@ -52,7 +54,9 @@ public class ItemDialog extends JDialog {
 	
 	public ItemDialog(MainFrame frame) {
 		super(frame, "", true);
-		this.i18n = I18n.getInstance();
+		i18n = I18n.getInstance();
+		isOk = false;
+		passLenght = PROPS.getInstance().getPasswordLenght();
 		
 		this.lblService  = new JLabel();
 		this.lblUsername = new JLabel();
@@ -95,7 +99,7 @@ public class ItemDialog extends JDialog {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				password.setText(PassGen.generate(8)); //TODO:
+				password.setText(PassGen.generate(passLenght));
 			}
 		});
 		
@@ -131,6 +135,10 @@ public class ItemDialog extends JDialog {
 		item.setPassword(password.getText());
 		item.setComment(comment.getText());
 		return item;
+	}
+	
+	public void setPasswordLenght(int lenght) {
+		passLenght = lenght;
 	}
 	
 	public Item showDialog(User owner) {

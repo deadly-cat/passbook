@@ -42,6 +42,7 @@ public class MainFrame extends JFrame {
 	private final I18n i18n;
 	private final Menu menu;
 	
+	private AbstractPanel prevView;
 	private AbstractPanel view; //current view
 	private User user; //current user
 	private ItemDialog dialog;
@@ -61,7 +62,7 @@ public class MainFrame extends JFrame {
 			UIManager.setLookAndFeel(Theme.valueOf(properties.getTheme()).getClassName());
 			SwingUtilities.updateComponentTreeUI(this);
 		} catch (Exception e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't load system theme.\nUsing default", e); //TODO:
+			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't load system theme.\nUsing default", e); //TODO: i18n
 			setTheme(Theme.STANDART);
 		}
 		menu = new Menu();
@@ -78,7 +79,7 @@ public class MainFrame extends JFrame {
 			itemDAO = daoFactory.getItemDAO();
 			form = daoFactory.test() ? Form.LOGIN : Form.INSTALL;
 		} catch(InstantiationException e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't create connection to storage.\nMaybe config file was incorrect.\nOpen setting to check it\nor create new storage", e); //TODO:
+			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't create connection to storage.\nMaybe config file was incorrect.\nOpen setting to check it\nor create new storage", e); //TODO: i18n
 			form  = Form.INSTALL;
 		}
 		createForms();
@@ -110,6 +111,7 @@ public class MainFrame extends JFrame {
 	public void nextView(Form form) {
 		if(view != null) {
 			remove(view);
+			prevView = view;
 		}
 		view = form.getPanel();
 		view.preShow();
@@ -118,6 +120,24 @@ public class MainFrame extends JFrame {
 		add(view);
 		view.revalidate();
 		repaint();
+	}
+	
+	public void prevView() {
+		if(prevView != null) {
+			AbstractPanel tmp = null;
+			if(view != null) {
+				remove(view);
+				tmp = view;
+			}
+			view = prevView;
+			prevView = tmp;
+			view.preShow();
+			view.updateI18n();
+			getRootPane().setDefaultButton(view.getDefaultButton());
+			add(view);
+			view.revalidate();
+			repaint();
+		}
 	}
 	
 	public ItemDialog getItemDialog() {
@@ -201,6 +221,14 @@ public class MainFrame extends JFrame {
 			});
 		}
 		
+		settingsMenu.addSeparator();
+		menu.addMenuItem(settingsMenu, Labels.MENU_SETTINGS).addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				nextView(Form.SETTINGS);
+			}
+		});
+		
 		JMenu aboutMenu = menu.addMenu(Labels.MENU_HELP);
 		menu.addMenuItem(aboutMenu, Labels.MENU_HELP_ABOUT).addActionListener(new ActionListener() {
 			@Override
@@ -258,31 +286,6 @@ public class MainFrame extends JFrame {
 		} catch(Exception e) {
 			LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
 		}
-	}
-	
-	// ------------------ INNER CLASSES ------------------ //
-	
-	private enum Theme {
-		
-		SYSTEM(Labels.LABELS_SYSTEM, UIManager.getSystemLookAndFeelClassName()),
-		STANDART(Labels.LABELS_STANDARD, UIManager.getCrossPlatformLookAndFeelClassName());
-		
-		private String i18nName;
-		private String className;
-		
-		Theme(String i18nName, String className) {
-			this.i18nName  = i18nName;
-			this.className = className;
-		}
-		
-		public String getI18nName() {
-			return i18nName;
-		}
-		
-		public String getClassName() {
-			return className;
-		}
-		
 	}
 
 }

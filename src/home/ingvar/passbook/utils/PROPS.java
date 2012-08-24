@@ -12,13 +12,18 @@ import javax.swing.UIManager;
 public class PROPS {
 	
 	private static final String PROP_FILENAME = "config";
+	
 	private static final String DB = "db";
 	private static final String LANG = "lang";
 	private static final String THEME = "theme";
+	private static final String PASS_TIMEOUT = "pt";
+	private static final String PASS_LENGHT = "pl";
 	
 	private static final int DEF_DB = DaoFactory.H2;
 	private static final String DEF_LANG = "en";
 	private static final String DEF_THEME = UIManager.getSystemLookAndFeelClassName();
+	private static final int DEF_PT = 15;
+	private static final int DEF_PL = 8;
 	
 	private static PROPS INSTANCE;
 	private final Properties properties;
@@ -37,16 +42,11 @@ public class PROPS {
 	}
 	
 	public int getDB() {
-		try {
-			return Integer.valueOf(get(DB, Integer.toString(DEF_DB)));
-		} catch (NumberFormatException e) {
-			LOG.warn("Incompatible number", "Config file incorrect.\nUsing default value for database", e);
-			return DEF_DB;
-		}
+		return get(DB, DEF_DB);
 	}
 	
 	public void setDB(int db) {
-		set(DB, Integer.toString(db));
+		set(DB, db);
 	}
 	
 	public String getLang() {
@@ -63,6 +63,22 @@ public class PROPS {
 	
 	public void setTheme(String theme) {
 		set(THEME, theme);
+	}
+	
+	public int getPasswordTimeout() {
+		return get(PASS_TIMEOUT, DEF_PT);
+	}
+	
+	public void setPasswordTimeout(int timeout) {
+		set(PASS_TIMEOUT, timeout);
+	}
+	
+	public int getPasswordLenght() {
+		return get(PASS_LENGHT, DEF_PL);
+	}
+	
+	public void setPasswordLenght(int lenght) {
+		set(PASS_LENGHT, lenght);
 	}
 	
 	public boolean isChanged() {
@@ -95,6 +111,8 @@ public class PROPS {
 			setDB(DEF_DB);
 			setLang(DEF_LANG);
 			setTheme(DEF_THEME);
+			setPasswordTimeout(DEF_PT);
+			setPasswordLenght(DEF_PL);
 			saveProperties();
 			
 		} finally {
@@ -107,6 +125,10 @@ public class PROPS {
 		properties.setProperty(key, value);
 	}
 	
+	private void set(String key, int value) {
+		set(key, Integer.toString(value));
+	}
+	
 	private String get(String key, String def) {
 		String p = properties.getProperty(key);
 		if(p == null) {
@@ -114,6 +136,15 @@ public class PROPS {
 			return def;
 		}
 		return p;
+	}
+	
+	private int get(String key, int def) {
+		try {
+			return Integer.valueOf(get(key, Integer.toString(def)));
+		} catch (NumberFormatException e) {
+			LOG.warn("Incompatible number", "Config file incorrect.\nUsing default value for " + key, e);
+			return def;
+		}
 	}
 	
 }
