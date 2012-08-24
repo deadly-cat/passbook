@@ -14,7 +14,7 @@ public class LOG {
 	public static void error(String title, Object message, Throwable e) {
 		log.error(message, e);
 		if(!isConsole) {
-			JOptionPane.showMessageDialog(parentFrame, message, title, JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(parentFrame, message, title, JOptionPane.ERROR_MESSAGE); //TODO: show message this link to issue tracker
 		}
 	}
 	

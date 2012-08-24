@@ -9,6 +9,7 @@ import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.ItemsTableModel;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.LOG;
+import home.ingvar.passbook.utils.PROPS;
 
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
@@ -190,7 +191,10 @@ public class MainPanel extends AbstractPanel {
 	protected JButton getDefaultButton() {
 		return null;
 	}
-
+	
+	protected void setPasswordTimeout(int timeout) {
+		copier.setTimeout(timeout);
+	}
 
 	private void filter(String expression) {
 		if(model.getRowCount() > 0) {
@@ -203,21 +207,24 @@ public class MainPanel extends AbstractPanel {
 	
 	private class PasswordCopier {
 		
-		private final int EXPIRATION_TIME; //in seconds
 		private final StringSelection EMPTY;
 		private final String TEXT;
 		private final Clipboard CLIPBOARD;
+		private int timeout; //in seconds
 		private volatile boolean isRunning;
 		private volatile boolean mayStart;
 		
-		
 		public PasswordCopier() {
-			EXPIRATION_TIME = 15; //TODO
 			EMPTY = new StringSelection("");
-			TEXT = getText(Labels.MESSAGES_COPY_PASSWORD);
+			TEXT  = getText(Labels.MESSAGES_COPY_PASSWORD);
 			CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
+			timeout   = PROPS.getInstance().getPasswordTimeout();
 			isRunning = false;
-			mayStart = true;
+			mayStart  = true;
+		}
+		
+		public void setTimeout(int timeout) {
+			this.timeout = timeout;
 		}
 		
 		public void copy(String password) {
@@ -238,7 +245,7 @@ public class MainPanel extends AbstractPanel {
 			new Thread() {
 				@Override
 				public void run() {
-					int timer = EXPIRATION_TIME + 1;
+					int timer = timeout + 1;
 					while(timer--> 1 && isRunning) {
 						lblStatus.setText(TEXT + timer);
 						try {Thread.sleep(1000);}catch(InterruptedException e){}

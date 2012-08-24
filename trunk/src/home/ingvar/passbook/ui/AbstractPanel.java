@@ -20,6 +20,10 @@ public abstract class AbstractPanel extends JPanel {
 		frame.nextView(form);
 	}
 	
+	public void back() {
+		frame.prevView();
+	}
+	
 	protected String getText(String name) {
 		return i18n.get(name);
 	}
