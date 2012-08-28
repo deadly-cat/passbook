@@ -43,6 +43,7 @@ public interface Labels {
 	String MESSAGES_PASSWORD_CHANGE = "messages.password-change";
 	String MESSAGES_DELETE_PROFILE = "messages.delete-profile";
 	String MESSAGES_SETTINGS_CHANGED = "messages.settings-changed";
+	String MESSAGES_RESTART_TO_APPLY = "messages.restart-to-apply";
 	String BUTTONS_OK = "buttons.ok";
 	String BUTTONS_CANCEL = "buttons.cancel";
 	String BUTTONS_BACK = "buttons.back";

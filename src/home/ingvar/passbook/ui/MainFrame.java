@@ -55,21 +55,20 @@ public class MainFrame extends JFrame {
 		properties = PROPS.getInstance();
 		i18n = I18n.getInstance();
 		i18n.setLocale(properties.getLang());
-		setPreference();
 		
-		//set theme
-		try {
-			UIManager.setLookAndFeel(Theme.valueOf(properties.getTheme()).getClassName());
-			SwingUtilities.updateComponentTreeUI(this);
-		} catch (Exception e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't load system theme.\nUsing default", e); //TODO: i18n
-			setTheme(Theme.STANDART);
-		}
 		menu = new Menu();
 		setJMenuBar(menu.getBar());
-		createMenu();
 		dialog = new ItemDialog(this);
 		
+		//set theme
+		Theme theme = null;
+		try {
+			theme = Theme.valueOf(properties.getTheme());
+		} catch(IllegalArgumentException e) {
+			theme = Theme.STANDART;
+			properties.setTheme(theme.toString());
+			LOG.warn(i18n.get(Labels.TITLE_WARNING), "Can't load theme from properties file.\nUsing standart theme", e); //TODO: i18n
+		}
 		//chose view
 		Form form = null;
 		try {
@@ -82,8 +81,11 @@ public class MainFrame extends JFrame {
 			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't create connection to storage.\nMaybe config file was incorrect.\nOpen setting to check it\nor create new storage", e); //TODO: i18n
 			form  = Form.INSTALL;
 		}
+		setPreference();
+		createMenu();
 		createForms();
 		nextView(form);
+		setTheme(theme);
 		updateI18n();
 	}
 	

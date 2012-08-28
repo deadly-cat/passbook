@@ -1,13 +1,12 @@
 package home.ingvar.passbook.utils;
 
 import home.ingvar.passbook.dao.DaoFactory;
+import home.ingvar.passbook.ui.Theme;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-
-import javax.swing.UIManager;
 
 public class PROPS {
 	
@@ -21,7 +20,7 @@ public class PROPS {
 	
 	private static final int DEF_DB = DaoFactory.H2;
 	private static final String DEF_LANG = "en";
-	private static final String DEF_THEME = UIManager.getSystemLookAndFeelClassName();
+	private static final String DEF_THEME = Theme.STANDART.toString();
 	private static final int DEF_PT = 15;
 	private static final int DEF_PL = 8;
 	
