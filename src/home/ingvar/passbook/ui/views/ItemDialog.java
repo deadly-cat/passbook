@@ -13,6 +13,7 @@ import home.ingvar.passbook.utils.PassGen;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -33,6 +34,7 @@ public class ItemDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	
+	private final MainFrame frame;
 	private final I18n i18n;
 	private Item item;
 	private boolean isOk;
@@ -54,6 +56,7 @@ public class ItemDialog extends JDialog {
 	
 	public ItemDialog(MainFrame frame) {
 		super(frame, "", true);
+		this.frame = frame;
 		i18n = I18n.getInstance();
 		isOk = false;
 		passLenght = PROPS.getInstance().getPasswordLenght();
@@ -150,6 +153,10 @@ public class ItemDialog extends JDialog {
 		isOk = false;
 		setItem(editing);
 		service.requestFocusInWindow();
+		Point l = frame.getLocation();
+		int w = frame.getWidth();
+		int h = frame.getHeight();
+		setLocation(l.x + (w - getWidth()) / 2, l.y + (h - getHeight()) / 2);
 		setVisible(true);
 		if(isOk) {
 			return getItem();
