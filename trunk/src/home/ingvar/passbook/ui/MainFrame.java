@@ -177,10 +177,8 @@ public class MainFrame extends JFrame {
 			menu.updateMenuStyle();
 			SwingUtilities.updateComponentTreeUI(dialog);
 			//and update all views
-			if(isVisible()) {
-				for(Form form : Form.values()) {
-					SwingUtilities.updateComponentTreeUI(form.getPanel());
-				}
+			for(Form form : Form.values()) {
+				SwingUtilities.updateComponentTreeUI(form.getPanel());
 			}
 			menu.chose(theme.toString());
 			properties.setTheme(theme.toString());
