@@ -75,7 +75,7 @@ public class SettingsPanel extends AbstractPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean isChanged = false;
-				String lang = ((ListItem<String>) cmbLanguage.getSelectedItem()).getValue();
+				String lang  = ((ListItem<String>) cmbLanguage.getSelectedItem()).getValue();
 				String theme = ((ListItem<String>) cmbTheme.getSelectedItem()).getValue();
 				Integer db = ((ListItem<Integer>) cmbDatabase.getSelectedItem()).getValue();
 				Integer pt = Integer.valueOf(fldPTimeout.getText());
@@ -102,7 +102,7 @@ public class SettingsPanel extends AbstractPanel {
 				if(!db.equals(properties.getDB())) {
 					properties.setDB(db);
 					isChanged = true;
-					//TODO: show dialog what need restart program
+					JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_RESTART_TO_APPLY), getText(Labels.TITLE_INFO), JOptionPane.INFORMATION_MESSAGE);
 				}
 				
 				if(isChanged) {

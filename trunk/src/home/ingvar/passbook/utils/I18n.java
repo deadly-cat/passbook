@@ -52,7 +52,9 @@ public class I18n {
 			resource = ResourceBundle.getBundle(LANG_PATH, current);
 			loadLicense();
 		} else {
-			LOG.warn("Incompatible language", "This language is incompatible.", null); //TODO: i18n
+			LOG.warn("Incompatible language", "This language is incompatible.\nUsing english language", null); //TODO: i18n
+			setLocale(Locale.ENGLISH);
+			PROPS.getInstance().setLang(current.getLanguage());
 		}
 	}
 	
