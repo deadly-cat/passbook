@@ -157,6 +157,39 @@ public class MainFrame extends JFrame {
 		itemDAO = daoFactory.getItemDAO();
 	}
 	
+	public void setProgramLocale(Locale locale) {
+		i18n.setLocale(locale);
+		menu.chose(locale.getLanguage());
+		properties.setLang(locale.getLanguage());
+		updateI18n();
+		if(view.equals(Form.SETTINGS.getPanel())) { //update settings on panel
+			view.preShow();
+		}
+	}
+	
+	public void setTheme(Theme theme) {
+		try {
+			UIManager.setLookAndFeel(theme.getClassName());
+			properties.setTheme(theme.toString());
+			SwingUtilities.updateComponentTreeUI(this);
+			menu.updateMenuStyle();
+			SwingUtilities.updateComponentTreeUI(dialog);
+			//and update all views
+			if(isVisible()) {
+				for(Form form : Form.values()) {
+					SwingUtilities.updateComponentTreeUI(form.getPanel());
+				}
+			}
+			menu.chose(theme.toString());
+			properties.setTheme(theme.toString());
+			if(view.equals(Form.SETTINGS.getPanel())) { //update settings on panel
+				view.preShow();
+			}
+		} catch(Exception e) {
+			LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
+		}
+	}
+	
 	private void setPreference() {
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Dimension screen = tk.getScreenSize();
@@ -186,20 +219,18 @@ public class MainFrame extends JFrame {
 		
 		JMenu settingsMenu = menu.addMenu(Labels.MENU_SETTINGS);
 		JMenu langMenu = menu.addMenu(settingsMenu, Labels.MENU_SETTINGS_LANG);
-		for(final Locale a : I18n.getAvailable()) {
-			String lbl = a.getDisplayName(a);
+		for(final Locale l : I18n.getAvailable()) {
+			String lbl = l.getDisplayName(l);
 			lbl = lbl.substring(0, 1).toUpperCase() + lbl.substring(1);
 			final JMenuItem item = menu.addMenuItemUnilocale(langMenu, lbl);
-			if(a.equals(i18n.getLocale())) {
+			item.setName(l.getLanguage());
+			if(l.equals(i18n.getLocale())) {
 				menu.chose(item);
 			}
 			item.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					i18n.setLocale(a);
-					menu.chose(item);
-					properties.setLang(a.getLanguage());
-					updateI18n();
+					setProgramLocale(l);
 				}
 			});
 		}
@@ -208,6 +239,7 @@ public class MainFrame extends JFrame {
 		Theme currentTheme = Theme.valueOf(properties.getTheme());
 		for(final Theme t : Theme.values()) {
 			final JMenuItem item = menu.addMenuItem(themeMenu, t.getI18nName());
+			item.setName(t.toString());
 			if(t.equals(currentTheme)) {
 				menu.chose(item);
 			}
@@ -215,8 +247,6 @@ public class MainFrame extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					setTheme(t);
-					menu.chose(item);
-					properties.setTheme(t.toString());
 				}
 			});
 		}
@@ -268,24 +298,6 @@ public class MainFrame extends JFrame {
 		}
 		dispose();
 		System.exit(0);
-	}
-	
-	private void setTheme(Theme theme) {
-		try {
-			UIManager.setLookAndFeel(theme.getClassName());
-			properties.setTheme(theme.toString());
-			SwingUtilities.updateComponentTreeUI(this);
-			menu.updateMenuStyle();
-			SwingUtilities.updateComponentTreeUI(dialog);
-			//and update all views
-			if(isVisible()) {
-				for(Form form : Form.values()) {
-					SwingUtilities.updateComponentTreeUI(form.getPanel());
-				}
-			}
-		} catch(Exception e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
-		}
 	}
 
 }

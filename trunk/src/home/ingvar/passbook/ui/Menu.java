@@ -65,6 +65,10 @@ public class Menu {
 		return item;
 	}
 	
+	public void chose(String menuName) {
+		chose(findItemByName(menuName));
+	}
+	
 	public void chose(JMenuItem item) {
 		JMenu p = findParent(item);
 		chosen.put(p, item);
@@ -86,6 +90,17 @@ public class Menu {
 		for(Map.Entry<JMenu, JMenuItem> e : chosen.entrySet()) {
 			chose(e.getValue());
 		}
+	}
+	
+	private JMenuItem findItemByName(String name) {
+		for(Map.Entry<JMenu, List<JMenuItem>> e : groups.entrySet()) {
+			for(JMenuItem i : e.getValue()) {
+				if(name.equals(i.getName())) {
+					return i;
+				}
+			}
+		}
+		return null;
 	}
 	
 	private JMenu findParent(JMenuItem item) {
