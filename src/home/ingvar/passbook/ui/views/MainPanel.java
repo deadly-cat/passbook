@@ -184,6 +184,7 @@ public class MainPanel extends AbstractPanel {
 		for(int i = 0; i < table.getColumnCount(); i++) {
 			table.getColumnModel().getColumn(i).setHeaderValue(model.getColumnName(i));
 		}
+		copier.updateI18n();
 		repaint();
 	}
 	
@@ -208,23 +209,19 @@ public class MainPanel extends AbstractPanel {
 	private class PasswordCopier {
 		
 		private final StringSelection EMPTY;
-		private final String TEXT;
 		private final Clipboard CLIPBOARD;
+		private String message;
 		private int timeout; //in seconds
 		private volatile boolean isRunning;
 		private volatile boolean mayStart;
 		
 		public PasswordCopier() {
 			EMPTY = new StringSelection("");
-			TEXT  = getText(Labels.MESSAGES_COPY_PASSWORD);
 			CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
+			message   = getText(Labels.MESSAGES_COPY_PASSWORD);
 			timeout   = PROPS.getInstance().getPasswordTimeout();
 			isRunning = false;
 			mayStart  = true;
-		}
-		
-		public void setTimeout(int timeout) {
-			this.timeout = timeout;
 		}
 		
 		public void copy(String password) {
@@ -234,6 +231,14 @@ public class MainPanel extends AbstractPanel {
 			StringSelection data = new StringSelection(password);
 			CLIPBOARD.setContents(data, null);
 			start();
+		}
+		
+		public void setTimeout(int timeout) {
+			this.timeout = timeout;
+		}
+		
+		public void updateI18n() {
+			message = getText(Labels.MESSAGES_COPY_PASSWORD);
 		}
 		
 		private void stop() {
@@ -247,7 +252,7 @@ public class MainPanel extends AbstractPanel {
 				public void run() {
 					int timer = timeout + 1;
 					while(timer--> 1 && isRunning) {
-						lblStatus.setText(TEXT + timer);
+						lblStatus.setText(message + timer);
 						try {Thread.sleep(1000);}catch(InterruptedException e){}
 					}
 					clear();
