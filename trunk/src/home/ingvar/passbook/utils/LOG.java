@@ -1,5 +1,7 @@
 package home.ingvar.passbook.utils;
 
+import home.ingvar.passbook.ui.views.ErrorDialog;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -11,10 +13,10 @@ public class LOG {
 	private static boolean isConsole;
 	private static JFrame parentFrame;
 	
-	public static void error(String title, Object message, Throwable e) {
+	public static void error(String title, String message, Throwable e) {
 		log.error(message, e);
 		if(!isConsole) {
-			JOptionPane.showMessageDialog(parentFrame, message, title, JOptionPane.ERROR_MESSAGE); //TODO: show message this link to issue tracker
+			ErrorDialog.show(parentFrame, title, message, e);
 		}
 	}
 	

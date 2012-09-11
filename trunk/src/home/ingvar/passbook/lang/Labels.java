@@ -32,6 +32,7 @@ public interface Labels {
 	String LABELS_PASSWORD_TIMEOUT = "labels.password-timeout";
 	String LABELS_PASSWORD_LENGHT = "labels.password-lenght";
 	String LABELS_SECONDS = "labels.seconds";
+	String LABELS_BUGLINK = "labels.buglink";
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";
 	String MESSAGES_ITEM_NOT_SELECT = "messages.item-not-select";
