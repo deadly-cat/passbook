@@ -1,25 +1,27 @@
-package home.ingvar.passbook.ui.views;
+package home.ingvar.passbook.ui.dialogs;
 
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.ui.AbstractDialog;
 import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.ui.res.IMG;
-import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.utils.LOG;
 import home.ingvar.passbook.utils.PROPS;
 import home.ingvar.passbook.utils.PassGen;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -30,14 +32,10 @@ import javax.swing.JTextField;
  * @version 0.2
  *
  */
-public class ItemDialog extends JDialog {
-
-	private static final long serialVersionUID = 1L;
+public class ItemDialog extends AbstractDialog<Item> {
 	
-	private final MainFrame frame;
-	private final I18n i18n;
+	private static final long serialVersionUID = 1L;
 	private Item item;
-	private boolean isOk;
 	private int passLenght;
 	
 	private JLabel lblService;
@@ -55,10 +53,7 @@ public class ItemDialog extends JDialog {
 	private JButton btnGenerate;
 	
 	public ItemDialog(MainFrame frame) {
-		super(frame, "", true);
-		this.frame = frame;
-		i18n = I18n.getInstance();
-		isOk = false;
+		super(frame);
 		passLenght = PROPS.getInstance().getPasswordLenght();
 		
 		this.lblService  = new JLabel();
@@ -71,20 +66,16 @@ public class ItemDialog extends JDialog {
 		this.password = new JTextField(12);
 		this.comment  = new JTextField(15);
 		
-		this.btnOk    = new JButton();
+		this.btnOk = new JButton();
 		this.btnCancel = new JButton();
 		this.btnGenerate = new JButton();
 		
+		setModalityType(ModalityType.APPLICATION_MODAL);
 		setLocationRelativeTo(frame);
-		setResizable(false);
-		getRootPane().setDefaultButton(btnOk);
-		
-		btnOk.addActionListener(new AbstractAction() {
-			private static final long serialVersionUID = 1L;
+		btnOk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				if(isCorrect()) {
-					isOk = true;
 					setVisible(false);
 				}
 			}
@@ -93,9 +84,18 @@ public class ItemDialog extends JDialog {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				item = null;
 				setVisible(false);
 			}
 		});
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				item = null;
+				setVisible(false);				
+			}
+		});
+		
 		btnGenerate.setIcon(new ImageIcon(IMG.PASSGEN.getImage()));
 		btnGenerate.setPreferredSize(new Dimension(25, 20));
 		btnGenerate.addActionListener(new AbstractAction() {
@@ -123,69 +123,109 @@ public class ItemDialog extends JDialog {
 		btns.add(btnCancel);
 		btns.add(btnOk);
 	}
-	
-	public void setItem(Item value) {
-		item = value;
-		service.setText(item.getService());
-		username.setText(item.getUsername());
-		password.setText(item.getPassword());
-		comment.setText(item.getComment());
-	}
-	
-	public Item getItem() {
-		item.setService(service.getText());
-		item.setUsername(username.getText());
-		item.setPassword(password.getText());
-		item.setComment(comment.getText());
-		return item;
+
+	@Override
+	public void updateI18n() {
+		setTitle(getText(Labels.TITLE_ITEM_DIALOG));
+		lblService.setText(getText(Labels.LABELS_SERVICE)+":");
+		lblUsername.setText(getText(Labels.LABELS_USERNAME)+":");
+		lblPassword.setText(getText(Labels.LABELS_PASSWORD)+":");
+		lblComment.setText(getText(Labels.LABELS_COMMENT)+":");
+		btnOk.setText(getText(Labels.BUTTONS_OK));
+		btnCancel.setText(getText(Labels.BUTTONS_CANCEL));
 	}
 	
 	public void setPasswordLenght(int lenght) {
 		passLenght = lenght;
 	}
 	
-	public Item showDialog(User owner) {
-		return showDialog(new Item(owner));
+	/*public void setItem(Item value) {
+	item = value;
+	service.setText(item.getService());
+	username.setText(item.getUsername());
+	password.setText(item.getPassword());
+	comment.setText(item.getComment());
+}
+
+public Item getItem() {
+	item.setService(service.getText());
+	item.setUsername(username.getText());
+	item.setPassword(password.getText());
+	item.setComment(comment.getText());
+	return item;
+}
+
+public Item showDialog(User owner) {
+	return showDialog(new Item(owner));
+}
+
+public Item showDialog(Item editing) {
+	pack();
+	isOk = false;
+	setItem(editing);
+	service.requestFocusInWindow();
+	Point l = frame.getLocation();
+	int w = frame.getWidth();
+	int h = frame.getHeight();
+	setLocation(l.x + (w - getWidth()) / 2, l.y + (h - getHeight()) / 2);
+	setVisible(true);
+	if(isOk) {
+		return getItem();
 	}
+	return null;
+}
+*/
 	
-	public Item showDialog(Item editing) {
-		pack();
-		isOk = false;
-		setItem(editing);
-		service.requestFocusInWindow();
-		Point l = frame.getLocation();
-		int w = frame.getWidth();
-		int h = frame.getHeight();
-		setLocation(l.x + (w - getWidth()) / 2, l.y + (h - getHeight()) / 2);
-		setVisible(true);
-		if(isOk) {
-			return getItem();
+	@Override
+	public Item showDialog(Object... params) {
+		if(params.length > 0) {
+			Item tmp = null;
+			if(params[0] instanceof Item) {
+				tmp = (Item) params[0];
+			} else if(params[0] instanceof User) {
+				tmp = new Item((User) params[0]);
+			} else {
+				LOG.error(getText(Labels.TITLE_ERROR), "Unknown user.\nCreating/Editting items impossible", null);
+				return null;
+			}
+			item = tmp;
+			service.setText(item.getService());
+			username.setText(item.getUsername());
+			password.setText(item.getPassword());
+			comment.setText(item.getComment());
 		}
-		return null;
+		service.requestFocusInWindow();
+		return showDialog();
 	}
-	
-	public void updateI18n() {
-		setTitle(i18n.get(Labels.TITLE_ITEM_DIALOG));
-		lblService.setText(i18n.get(Labels.LABELS_SERVICE)+":");
-		lblUsername.setText(i18n.get(Labels.LABELS_USERNAME)+":");
-		lblPassword.setText(i18n.get(Labels.LABELS_PASSWORD)+":");
-		lblComment.setText(i18n.get(Labels.LABELS_COMMENT)+":");
-		btnOk.setText(i18n.get(Labels.BUTTONS_OK));
-		btnCancel.setText(i18n.get(Labels.BUTTONS_CANCEL));
+
+	@Override
+	protected Item getResult() {
+		if(item != null) {
+			item.setService(service.getText());
+			item.setUsername(username.getText());
+			item.setPassword(password.getText());
+			item.setComment(comment.getText());
+		}
+		return item;
+	}
+
+	@Override
+	protected JButton getDefaultButton() {
+		return btnOk;
 	}
 	
 	private boolean isCorrect() {
 		StringBuilder message = new StringBuilder();
 		
 		if(service.getText().isEmpty()) {
-			message.append(i18n.get(Labels.MESSAGES_SERVICE_EMPTY)).append("\n");
+			message.append(getText(Labels.MESSAGES_SERVICE_EMPTY)).append("\n");
 		}
 		if(username.getText().isEmpty()) {
-			message.append(i18n.get(Labels.MESSAGES_USERNAME_EMPTY)).append("\n");
+			message.append(getText(Labels.MESSAGES_USERNAME_EMPTY)).append("\n");
 		}
 		
 		if(message.length() > 0) {
-			JOptionPane.showMessageDialog(null, message, i18n.get(Labels.TITLE_ERROR), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, message, getText(Labels.TITLE_ERROR), JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;

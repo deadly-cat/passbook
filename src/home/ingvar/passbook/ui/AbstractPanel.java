@@ -4,7 +4,6 @@ import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.transfer.User;
-import home.ingvar.passbook.ui.views.ItemDialog;
 import home.ingvar.passbook.utils.I18n;
 
 import javax.swing.JButton;
@@ -54,10 +53,6 @@ public abstract class AbstractPanel extends JPanel {
 	
 	protected void setUser(User user) {
 		frame.setUser(user);
-	}
-	
-	protected ItemDialog getItemDialog() {
-		return frame.getItemDialog();
 	}
 	
 	protected AbstractPanel inject(MainFrame frame) {

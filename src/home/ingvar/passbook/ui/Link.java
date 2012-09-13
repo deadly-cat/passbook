@@ -21,12 +21,12 @@ public class Link extends JLabel {
 	
 	public Link(URI uri) {
 		this(uri, uri.toString());
-		addMouseListener(new Listener());
 	}
 	
 	public Link(URI uri, String title) {
 		this.uri = uri;
 		setTitle(title);
+		addMouseListener(new Listener());
 	}
 	
 	public void setTitle(String title) {
@@ -41,7 +41,7 @@ public class Link extends JLabel {
 		return uri;
 	}
 	
-	public void open() throws IOException {
+	public void browse() throws IOException {
 		if(Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
 			Desktop.getDesktop().browse(uri);
 		}
@@ -52,7 +52,7 @@ public class Link extends JLabel {
 		@Override
 		public void mouseClicked(MouseEvent event) {
 			try {
-				open();
+				browse();
 			} catch (IOException e) {
 				LOG.error(I18n.getInstance().get(Labels.TITLE_ERROR), e.getMessage(), e);
 			}

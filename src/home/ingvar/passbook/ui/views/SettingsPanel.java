@@ -6,6 +6,7 @@ import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.Theme;
+import home.ingvar.passbook.ui.dialogs.Dialog;
 import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.utils.PROPS;
 
@@ -88,7 +89,7 @@ public class SettingsPanel extends AbstractPanel {
 				}
 				if(!pl.equals(properties.getPasswordLenght())) {
 					properties.setPasswordLenght(pl);
-					getItemDialog().setPasswordLenght(pl);
+					Dialog.getItemDialog().setPasswordLenght(pl);
 					isChanged = true;
 				}
 				if(!lang.equals(properties.getLang())) {
