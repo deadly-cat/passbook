@@ -7,6 +7,7 @@ import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
 import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.ItemsTableModel;
+import home.ingvar.passbook.ui.dialogs.Dialog;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.utils.LOG;
 import home.ingvar.passbook.utils.PROPS;
@@ -288,7 +289,7 @@ public class MainPanel extends AbstractPanel {
 		}
 		
 		private void add() {
-			Item item = getItemDialog().showDialog(getUser());
+			Item item = Dialog.getItemDialog().showDialog(getUser());
 			if(item != null) {
 				try {
 					model.addItem(item);
@@ -305,7 +306,7 @@ public class MainPanel extends AbstractPanel {
 				return;
 			}
 			int row = table.convertRowIndexToModel(viewRow);
-			Item item = getItemDialog().showDialog(model.getItem(row).clone());
+			Item item = Dialog.getItemDialog().showDialog(model.getItem(row).clone());
 			if(item != null) {
 				try {
 					model.updateItem(item);

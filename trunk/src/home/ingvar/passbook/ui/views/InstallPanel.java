@@ -71,6 +71,7 @@ public class InstallPanel extends AbstractPanel {
 		lblDatabase.setText(getText(Labels.LABELS_DATABASE)+":");
 		btnCreate.setText(getText(Labels.BUTTONS_CREATE));
 		txaLicense.setText(getLicense());
+		txaLicense.setCaretPosition(0);
 	}
 	
 	private void createDB() {

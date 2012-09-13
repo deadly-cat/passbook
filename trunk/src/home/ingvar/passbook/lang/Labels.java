@@ -7,6 +7,7 @@ public interface Labels {
 	String TITLE_WARNING = "title.warning";
 	String TITLE_INFO = "title.info";
 	String TITLE_ITEM_DIALOG = "title.item-dialog";
+	String TITLE_ABOUT = "title.about";
 	String MENU_FILE = "menu.file";
 	String MENU_FILE_EXIT = "menu.file.exit";
 	String MENU_SETTINGS = "menu.settings";
@@ -33,6 +34,12 @@ public interface Labels {
 	String LABELS_PASSWORD_LENGHT = "labels.password-lenght";
 	String LABELS_SECONDS = "labels.seconds";
 	String LABELS_BUGLINK = "labels.buglink";
+	String LABELS_ABOUT_PROGRAM = "labels.about-program";
+	String LABELS_VERSION = "labels.version";
+	String LABELS_AUTHOR = "labels.author";
+	String LABELS_RELEASES = "labels.releases";
+	String LABELS_TRACKER = "labels.tracker";
+	String LABELS_LICENSE = "labels.license";
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";
 	String MESSAGES_ITEM_NOT_SELECT = "messages.item-not-select";

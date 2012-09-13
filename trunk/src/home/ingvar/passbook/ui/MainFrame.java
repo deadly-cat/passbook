@@ -5,9 +5,9 @@ import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.ui.dialogs.Dialog;
 import home.ingvar.passbook.ui.res.IMG;
 import home.ingvar.passbook.ui.views.InstallPanel;
-import home.ingvar.passbook.ui.views.ItemDialog;
 import home.ingvar.passbook.ui.views.LoginPanel;
 import home.ingvar.passbook.ui.views.MainPanel;
 import home.ingvar.passbook.ui.views.ProfilePanel;
@@ -28,7 +28,6 @@ import java.util.Locale;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -45,7 +44,6 @@ public class MainFrame extends JFrame {
 	private AbstractPanel prevView;
 	private AbstractPanel view; //current view
 	private User user; //current user
-	private ItemDialog dialog;
 	
 	private DaoFactory daoFactory;
 	private UserDAO userDAO;
@@ -58,7 +56,6 @@ public class MainFrame extends JFrame {
 		
 		menu = new Menu();
 		setJMenuBar(menu.getBar());
-		dialog = new ItemDialog(this);
 		
 		//set theme
 		Theme theme = null;
@@ -81,6 +78,7 @@ public class MainFrame extends JFrame {
 			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't create connection to storage.\nMaybe config file was incorrect.\nOpen setting to check it\nor create new storage", e); //TODO: i18n
 			form  = Form.INSTALL;
 		}
+		Dialog.initialize(this);
 		setPreference();
 		createMenu();
 		createForms();
@@ -142,10 +140,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	public ItemDialog getItemDialog() {
-		return dialog;
-	}
-	
 	public void logout() {
 		daoFactory.close();
 		setUser(null);
@@ -175,7 +169,9 @@ public class MainFrame extends JFrame {
 			properties.setTheme(theme.toString());
 			SwingUtilities.updateComponentTreeUI(this);
 			menu.updateMenuStyle();
-			SwingUtilities.updateComponentTreeUI(dialog);
+			for(@SuppressWarnings("rawtypes") AbstractDialog d : Dialog.getDialogs()) {
+				SwingUtilities.updateComponentTreeUI(d);
+			}
 			//and update all views
 			for(Form form : Form.values()) {
 				SwingUtilities.updateComponentTreeUI(form.getPanel());
@@ -263,7 +259,7 @@ public class MainFrame extends JFrame {
 		menu.addMenuItem(aboutMenu, Labels.MENU_HELP_ABOUT).addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "Created by: Igor Zubenko(igor.a.zubenko@gmail.com)\nLicensed by: http://opensource.org/licenses/BSD-3-Clause", "About", JOptionPane.INFORMATION_MESSAGE); //TODO: i18n
+				Dialog.getAboutDialog().showDialog();
 			}
 		});
 	}
@@ -289,7 +285,9 @@ public class MainFrame extends JFrame {
 		updateTitle();
 		menu.updateI18n();
 		view.updateI18n();
-		dialog.updateI18n();
+		for(@SuppressWarnings("rawtypes") AbstractDialog d : Dialog.getDialogs()) {
+			d.updateI18n();
+		}
 	}
 	
 	private void close() {

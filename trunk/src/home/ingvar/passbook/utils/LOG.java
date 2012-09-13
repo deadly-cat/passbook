@@ -1,6 +1,7 @@
 package home.ingvar.passbook.utils;
 
-import home.ingvar.passbook.ui.views.ErrorDialog;
+import home.ingvar.passbook.ui.dialogs.Dialog;
+import home.ingvar.passbook.ui.dialogs.ErrorDialog;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -16,7 +17,12 @@ public class LOG {
 	public static void error(String title, String message, Throwable e) {
 		log.error(message, e);
 		if(!isConsole) {
-			ErrorDialog.show(parentFrame, title, message, e);
+			ErrorDialog dialog = Dialog.getErrorDialog();
+			if(dialog != null) {
+				Dialog.getErrorDialog().showDialog(title, message, e);
+			} else {
+				JOptionPane.showMessageDialog(parentFrame, message, title, JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 	

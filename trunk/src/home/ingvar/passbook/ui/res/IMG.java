@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 public enum IMG {
 
 	FAVICON("favicon.png"),
+	LOGO("logo.png"),
 	USER("user.png"),
 	EXIT("exit.png"),
 	ADD_ITEM("add.png"),

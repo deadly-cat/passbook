@@ -1,14 +1,13 @@
-package home.ingvar.passbook.ui.views;
+package home.ingvar.passbook.ui.dialogs;
 
 import home.ingvar.passbook.lang.Labels;
+import home.ingvar.passbook.ui.AbstractDialog;
 import home.ingvar.passbook.ui.GBH;
 import home.ingvar.passbook.ui.Link;
-import home.ingvar.passbook.utils.I18n;
+import home.ingvar.passbook.ui.MainFrame;
 import home.ingvar.passbook.utils.LOG;
 
-import java.awt.Component;
 import java.awt.GridBagLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
@@ -20,48 +19,23 @@ import java.net.URLEncoder;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
-public class ErrorDialog extends JDialog {
+public class ErrorDialog extends AbstractDialog<Object> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String URL = "http://code.google.com/p/passbook/issues/entry";
 	private static final String URI_TEMPLATE = "Defect report from user";
 	private static final String URI_COMMENT = "What steps will reproduce the problem?\n1. \n2. \n3. \n\nWhat is the expected output? What do you see instead?\n\n\nPlease use labels and text to provide additional information.\n\n";
-	private static ErrorDialog INSTANCE;
-	private I18n i18n;
+	
 	private Icon icoError;
 	private JLabel lblMessage;
 	private Link link;
 	private JButton btnOk;
 	
-	public static void show(Component parent, String title, String message, Throwable e) {
-		ErrorDialog dialog = getInstance();
-		dialog.setTitle(title);
-		dialog.setMessage(message, e);
-		dialog.updateI18n();
-		dialog.pack();
-		if(parent == null) {
-			parent = dialog.getRootPane();
-		}
-		Point l = parent.getLocation();
-		int w = parent.getWidth();
-		int h = parent.getHeight();
-		dialog.setLocation(l.x + (w - dialog.getWidth()) / 2, l.y + (h - dialog.getHeight()) / 2);
-		dialog.setVisible(true);
-	}
-	
-	protected static synchronized ErrorDialog getInstance() {
-		if(INSTANCE == null) {
-			INSTANCE = new ErrorDialog();
-		}
-		return INSTANCE;
-	}
-	
-	private ErrorDialog() {
-		i18n = I18n.getInstance();
+	public ErrorDialog(MainFrame frame) {
+		super(frame);
 		icoError = UIManager.getIcon("OptionPane.errorIcon");
 		lblMessage = new JLabel();
 		btnOk = new JButton();
@@ -89,8 +63,38 @@ public class ErrorDialog extends JDialog {
 		}
 		add(btnOk, GBH.get().width(3).anchor(GBH.CENTER));
 	}
+
+	@Override
+	public void updateI18n() {
+		if(link != null) {
+			link.setTitle(getText(Labels.LABELS_BUGLINK));
+		}
+		btnOk.setText(getText(Labels.BUTTONS_OK));
+	}
 	
-	public void setMessage(String message, Throwable exception) {
+	@Override
+	public Object showDialog(Object... params) {
+		if(params.length > 0) {
+			String title = (String) params[0];
+			String message = (String) params[1];
+			Throwable exception = params.length > 2 ? (Throwable) params[2] : null;
+			setTitle(title);
+			setMessage(message, exception);
+		}
+		return showDialog();
+	}
+
+	@Override
+	protected Object getResult() {
+		return null;
+	}
+
+	@Override
+	protected JButton getDefaultButton() {
+		return btnOk;
+	}
+	
+	private void setMessage(String message, Throwable exception) {
 		lblMessage.setText("<html>" + message.replaceAll("\n", "<br/>") + "</html>");
 		try {
 			String m = message;
@@ -105,23 +109,16 @@ public class ErrorDialog extends JDialog {
 				link.setVisible(true);
 			}
 		} catch (UnsupportedEncodingException e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
+			LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 			if(link != null) {
 				link.setVisible(false);
 			}
 		} catch (URISyntaxException e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), e.getMessage(), e);
+			LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 			if(link != null) {
 				link.setVisible(false);
 			}
 		}
-	}
-	
-	public void updateI18n() {
-		if(link != null) {
-			link.setTitle(i18n.get(Labels.LABELS_BUGLINK));
-		}
-		btnOk.setText(i18n.get(Labels.BUTTONS_OK));
 	}
 	
 	private URI createURI(String comment) throws UnsupportedEncodingException, URISyntaxException {
