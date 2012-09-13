@@ -225,15 +225,5 @@ public class ProfilePanel extends AbstractPanel {
 			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORD_INCORRECT), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
 		}
 	}
-	
-	/*private Color getBorderColor() {
-		Color bg = getBackground();
-		int gray = (int) Math.sqrt(
-			      bg.getRed() * bg.getRed() * 0.241 + 
-			      bg.getGreen() * bg.getGreen() * .691 + 
-			      bg.getBlue() * bg.getBlue() * .068
-		);
-		return gray >= 255 / 2 ? bg.darker() : bg.brighter();
-	}*/
 
 }

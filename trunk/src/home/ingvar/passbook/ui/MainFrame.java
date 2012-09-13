@@ -3,6 +3,7 @@ package home.ingvar.passbook.ui;
 import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.UserDAO;
+import home.ingvar.passbook.lang.Exceptions;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.dialogs.Dialog;
@@ -64,7 +65,7 @@ public class MainFrame extends JFrame {
 		} catch(IllegalArgumentException e) {
 			theme = Theme.STANDART;
 			properties.setTheme(theme.toString());
-			LOG.warn(i18n.get(Labels.TITLE_WARNING), "Can't load theme from properties file.\nUsing standart theme", e); //TODO: i18n
+			LOG.warn(i18n.get(Labels.TITLE_WARNING), i18n.getException(Exceptions.THEME_FAIL), e);
 		}
 		//chose view
 		Form form = null;
@@ -75,8 +76,8 @@ public class MainFrame extends JFrame {
 			itemDAO = daoFactory.getItemDAO();
 			form = daoFactory.test() ? Form.LOGIN : Form.INSTALL;
 		} catch(InstantiationException e) {
-			LOG.error(i18n.get(Labels.TITLE_ERROR), "Can't create connection to storage.\nMaybe config file was incorrect.\nOpen setting to check it\nor create new storage", e); //TODO: i18n
-			form  = Form.INSTALL;
+			LOG.error(i18n.get(Labels.TITLE_ERROR), i18n.getException(Exceptions.STORAGE_FAIL), e);
+			form = Form.INSTALL;
 		}
 		Dialog.initialize(this);
 		setPreference();

@@ -9,9 +9,9 @@ import java.io.Serializable;
  * @version 0.1
  *
  */
-@SuppressWarnings("serial")
 public class Item implements Serializable, Cloneable {
 
+	private static final long serialVersionUID = 1L;
 	private long id;
 	private User owner;
 	private String service;

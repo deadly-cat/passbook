@@ -1,7 +1,10 @@
 package home.ingvar.passbook;
 
 import home.ingvar.passbook.console.Console;
+import home.ingvar.passbook.lang.Exceptions;
+import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.ui.MainFrame;
+import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.utils.LOG;
 
 import javax.swing.JFrame;
@@ -25,7 +28,7 @@ public class Passbook {
 				frame.setVisible(true);
 			}
 		} catch(Exception e) {
-			LOG.error("Initialization error", "Something wrong see log for details", e); //TODO: i18n
+			LOG.error(I18n.getInstance().get(Labels.TITLE_INIT_ERROR), I18n.getInstance().getException(Exceptions.ABSTRACT), e);
 		}
 	}
 

@@ -9,6 +9,7 @@ public class Creator {
 
 	public static void main(String[] args) throws IOException {
 		generateI18n(getLangFile("passbook_en.properties"), "Labels");
+		generateI18n(getLangFile("exceptions_en.properties"), "Exceptions");
 	}
 	
 	public static void generateI18n(File file, String className) throws IOException {

@@ -1,6 +1,8 @@
 package home.ingvar.passbook.utils;
 
 import home.ingvar.passbook.dao.DaoFactory;
+import home.ingvar.passbook.lang.Exceptions;
+import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.ui.Theme;
 
 import java.io.FileInputStream;
@@ -92,7 +94,7 @@ public class PROPS {
 			isChanged = false;
 			
 		} catch(IOException e) {
-			LOG.error("Save properties", "Save properties fail.", e); //TODO: i18n
+			LOG.error(I18n.getInstance().get(Labels.TITLE_PROPERTIES_SAVE), I18n.getInstance().getException(Exceptions.PROPERTIES_SAVE_FAIL), e);
 			
 		} finally {
 			if(out != null) {try {out.close();} catch (IOException e) {}}
@@ -106,7 +108,7 @@ public class PROPS {
 			properties.load(in);
 			
 		} catch(IOException e) {
-			LOG.warn("Load properties", "Load properties fail.\nCreate new properties file", e);
+			LOG.warn(I18n.getInstance().get(Labels.TITLE_PROPERTIES_LOAD), I18n.getInstance().getException(Exceptions.PROPERTIES_LOAD_FAIL), e);
 			setDB(DEF_DB);
 			setLang(DEF_LANG);
 			setTheme(DEF_THEME);
@@ -141,7 +143,7 @@ public class PROPS {
 		try {
 			return Integer.valueOf(get(key, Integer.toString(def)));
 		} catch (NumberFormatException e) {
-			LOG.warn("Incompatible number", "Config file incorrect.\nUsing default value for " + key, e);
+			LOG.warn(I18n.getInstance().get(Labels.TITLE_INCOMPOTIBLE_NUMBER), I18n.getInstance().getException(Exceptions.PROPERTY_LOAD_FAIL) + key, e);
 			return def;
 		}
 	}

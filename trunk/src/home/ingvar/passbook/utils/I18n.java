@@ -1,5 +1,8 @@
 package home.ingvar.passbook.utils;
 
+import home.ingvar.passbook.lang.Exceptions;
+import home.ingvar.passbook.lang.Labels;
+
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -8,13 +11,14 @@ import java.util.Scanner;
 public class I18n {
 	
 	private static final String LANG_PATH = "home/ingvar/passbook/lang/passbook";
+	private static final String EXPT_PATH ="home/ingvar/passbook/lang/exceptions";
 	private static final String LCNS_PATH = "/home/ingvar/passbook/lang/license";
 	private static final Locale[] available = {Locale.ENGLISH, new Locale("ru")};
 	private static I18n INSTANCE;
 	private Locale current;
 	private ResourceBundle resource;
+	private ResourceBundle exceptions;
 	private String licenseText;
-	//TODO: add exceptions bundle
 	
 	public static synchronized I18n getInstance() {
 		if(INSTANCE == null) {
@@ -39,6 +43,7 @@ public class I18n {
 	private I18n() {
 		current = available[0];
 		resource = ResourceBundle.getBundle(LANG_PATH, current);
+		exceptions = ResourceBundle.getBundle(EXPT_PATH, current);
 		loadLicense();
 	}
 	
@@ -50,10 +55,10 @@ public class I18n {
 		if(isAvailable(locale)) {
 			current  = locale;
 			resource = ResourceBundle.getBundle(LANG_PATH, current);
+			exceptions = ResourceBundle.getBundle(EXPT_PATH, current);
 			loadLicense();
 		} else {
-			LOG.warn("Incompatible language", "This language is incompatible.\nUsing english language", null); //TODO: i18n
-			setLocale(Locale.ENGLISH);
+			LOG.warn(get(Labels.TITLE_LANG_INCOMPOTIBLE), getException(Exceptions.LANG_INCOMPOTIBLE), null);
 			PROPS.getInstance().setLang(current.getLanguage());
 		}
 	}
@@ -72,6 +77,10 @@ public class I18n {
 	
 	public String get(String name) {
 		return resource.getString(name);
+	}
+	
+	public String getException(String name) {
+		return exceptions.getString(name);
 	}
 	
 	private void loadLicense() {
