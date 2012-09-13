@@ -96,7 +96,7 @@ public class I18n {
 		}
 		if(io != null) {
 			StringBuilder tmp = new StringBuilder();
-			Scanner in = new Scanner(io);
+			Scanner in = new Scanner(io, "UTF-8");
 			while(in.hasNextLine()) {
 				tmp.append(in.nextLine()).append("\n");
 			}
