@@ -2,8 +2,10 @@ package home.ingvar.passbook.dao.h2;
 
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.ResultException;
+import home.ingvar.passbook.lang.Exceptions;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.utils.I18n;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,9 +24,11 @@ public class H2ItemDAO implements ItemDAO {
 	private static final String LIST = "SELECT id, P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment) FROM passbook.items WHERE owner_id = ?";
 	
 	private H2DaoFactory factory;
+	private I18n i18n;
 	
 	public H2ItemDAO(H2DaoFactory factory) {
 		this.factory = factory;
+		this.i18n = I18n.getInstance();
 	}
 
 	@Override
@@ -47,13 +51,13 @@ public class H2ItemDAO implements ItemDAO {
 			state.setString(8, password);
 			state.setString(9, item.getComment());
 			if(state.executeUpdate() == 0) {
-				throw new ResultException("An error occurred while adding a new item");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_ADD));
 			}
 			ResultSet id = state.getGeneratedKeys();
 			if(id.next()) {
 				item.setId(id.getLong(1));
 			} else {
-				throw new ResultException("An error occurred while adding a new item");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_ADD));
 			}
 			
 		} catch(SQLException e) {
@@ -96,7 +100,7 @@ public class H2ItemDAO implements ItemDAO {
 			}
 			sqlUpdate.append(" WHERE id = "+item.getId()+" AND owner_id = "+item.getOwner().getId());
 			if(connection.createStatement().executeUpdate(sqlUpdate.toString()) == 0) {
-				throw new ResultException("An error occurred while updating a new item"); 
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_UPD)); 
 			}
 			
 		} catch(SQLException e) {
@@ -118,7 +122,7 @@ public class H2ItemDAO implements ItemDAO {
 			state.setLong(1, item.getId());
 			state.setLong(2, item.getOwner().getId());
 			if(state.executeUpdate() == 0) {
-				throw new ResultException("An error occurred while deleting a new item");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_DEL));
 			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
@@ -157,7 +161,7 @@ public class H2ItemDAO implements ItemDAO {
 				item.setComment(result.getString(5).trim());
 				return item;
 			} else {
-				throw new ResultException("Item not found!");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_NOT_FOUND));
 			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
@@ -207,14 +211,6 @@ public class H2ItemDAO implements ItemDAO {
 	@Override
 	public void validate(Item item) throws ResultException {
 		factory.getUserDAO().validate(item.getOwner(), true);
-		/*String service  = item.getService();
-		String username = item.getUsername();
-		if(service == null || service.isEmpty()) {
-			throw new ValidationException("Service must be not empty");
-		}
-		if(username == null || username.isEmpty()) {
-			throw new ValidationException("Username must be not empty");
-		}*/
 	}
 
 }

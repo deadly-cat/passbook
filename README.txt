@@ -8,7 +8,7 @@ ver 1.2.0 (planned)
 ver 1.1.1:
 * add link to issue tracker in error window
 * add about window
-* add localization for exceptions (planned)
+* add localization for exceptions
 
 -------------------
 ver 1.1.0:

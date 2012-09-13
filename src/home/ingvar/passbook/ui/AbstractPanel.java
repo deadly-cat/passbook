@@ -27,6 +27,10 @@ public abstract class AbstractPanel extends JPanel {
 		return i18n.get(name);
 	}
 	
+	protected String getException(String name) {
+		return i18n.getException(name);
+	}
+	
 	protected String getLicense() {
 		return i18n.getLicenseText();
 	}

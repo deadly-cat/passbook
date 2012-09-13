@@ -47,7 +47,7 @@ public class AboutDialog extends AbstractDialog<Object> {
 			lnkReleases = new Link(new URI("http://code.google.com/p/passbook/downloads/list"));
 			lnkTracker = new Link(new URI("http://code.google.com/p/passbook/issues/list"));
 		} catch (URISyntaxException e) {/* not good */}
-		lnkLicense = new Link(null, "License") {
+		lnkLicense = new Link(null, getText(Labels.LABELS_LICENSE)) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void browse() {

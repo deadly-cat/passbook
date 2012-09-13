@@ -1,5 +1,6 @@
 package home.ingvar.passbook.ui.dialogs;
 
+import home.ingvar.passbook.lang.Exceptions;
 import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
@@ -137,43 +138,6 @@ public class ItemDialog extends AbstractDialog<Item> {
 		passLenght = lenght;
 	}
 	
-	/*public void setItem(Item value) {
-	item = value;
-	service.setText(item.getService());
-	username.setText(item.getUsername());
-	password.setText(item.getPassword());
-	comment.setText(item.getComment());
-}
-
-public Item getItem() {
-	item.setService(service.getText());
-	item.setUsername(username.getText());
-	item.setPassword(password.getText());
-	item.setComment(comment.getText());
-	return item;
-}
-
-public Item showDialog(User owner) {
-	return showDialog(new Item(owner));
-}
-
-public Item showDialog(Item editing) {
-	pack();
-	isOk = false;
-	setItem(editing);
-	service.requestFocusInWindow();
-	Point l = frame.getLocation();
-	int w = frame.getWidth();
-	int h = frame.getHeight();
-	setLocation(l.x + (w - getWidth()) / 2, l.y + (h - getHeight()) / 2);
-	setVisible(true);
-	if(isOk) {
-		return getItem();
-	}
-	return null;
-}
-*/
-	
 	@Override
 	public Item showDialog(Object... params) {
 		if(params.length > 0) {
@@ -183,7 +147,7 @@ public Item showDialog(Item editing) {
 			} else if(params[0] instanceof User) {
 				tmp = new Item((User) params[0]);
 			} else {
-				LOG.error(getText(Labels.TITLE_ERROR), "Unknown user.\nCreating/Editting items impossible", null);
+				LOG.error(getText(Labels.TITLE_ERROR), getException(Exceptions.ITEM_MOD_FAIL), null);
 				return null;
 			}
 			item = tmp;

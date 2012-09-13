@@ -149,7 +149,6 @@ public class RegPanel extends AbstractPanel {
 	
 	private JLabel ph() { //placeholder
 		JLabel lbl = new JLabel("INVIS");
-		//lbl.setForeground(getBackground());
 		lbl.setVisible(false);
 		return lbl;
 	}

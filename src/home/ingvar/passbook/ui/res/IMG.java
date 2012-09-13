@@ -1,5 +1,8 @@
 package home.ingvar.passbook.ui.res;
 
+import home.ingvar.passbook.lang.Exceptions;
+import home.ingvar.passbook.lang.Labels;
+import home.ingvar.passbook.utils.I18n;
 import home.ingvar.passbook.utils.LOG;
 
 import java.awt.BasicStroke;
@@ -40,7 +43,7 @@ public enum IMG {
 		try {
 			img = ImageIO.read(getClass().getResource(RES_PATH + imageName));
 		} catch (Exception e) {
-			LOG.error("Image load", "Cannot load image " + imageName, e);
+			LOG.error(I18n.getInstance().get(Labels.TITLE_LOAD_IMAGE), I18n.getInstance().getException(Exceptions.LOAD_IMAGE_FAIL) + imageName, e);
 		}
 	}
 	

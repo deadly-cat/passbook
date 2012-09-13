@@ -2,6 +2,7 @@ package home.ingvar.passbook.ui;
 
 import home.ingvar.passbook.dao.ItemDAO;
 import home.ingvar.passbook.dao.ResultException;
+import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.utils.I18n;
 
@@ -131,13 +132,13 @@ public class ItemsTableModel extends AbstractTableModel {
 	public String getColumnName(int col) {
 		switch(col) {
 			case 0:
-				return i18n.get("labels.service");
+				return i18n.get(Labels.LABELS_SERVICE);
 			case 1:
-				return i18n.get("labels.username");
+				return i18n.get(Labels.LABELS_USERNAME);
 			case 2:
-				return i18n.get("labels.password");
+				return i18n.get(Labels.LABELS_PASSWORD);
 			case 3:
-				return i18n.get("labels.comment");
+				return i18n.get(Labels.LABELS_COMMENT);
 			default:
 				return null;
 		}

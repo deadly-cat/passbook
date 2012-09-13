@@ -9,9 +9,9 @@ import java.io.Serializable;
  * @version 0.1
  *
  */
-@SuppressWarnings("serial")
 public class User implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private long id;
 	private String fullname;
 	private String username;

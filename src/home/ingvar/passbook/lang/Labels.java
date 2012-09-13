@@ -8,6 +8,12 @@ public interface Labels {
 	String TITLE_INFO = "title.info";
 	String TITLE_ITEM_DIALOG = "title.item-dialog";
 	String TITLE_ABOUT = "title.about";
+	String TITLE_INIT_ERROR = "title.init-error";
+	String TITLE_LANG_INCOMPOTIBLE = "title.lang-incompotible";
+	String TITLE_PROPERTIES_SAVE = "title.properties.save";
+	String TITLE_PROPERTIES_LOAD = "title.properties.load";
+	String TITLE_INCOMPOTIBLE_NUMBER = "title.incompotible-number";
+	String TITLE_LOAD_IMAGE = "title.load-image";
 	String MENU_FILE = "menu.file";
 	String MENU_FILE_EXIT = "menu.file.exit";
 	String MENU_SETTINGS = "menu.settings";

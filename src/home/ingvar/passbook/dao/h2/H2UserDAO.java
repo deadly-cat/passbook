@@ -3,7 +3,10 @@ package home.ingvar.passbook.dao.h2;
 import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.dao.ValidationException;
+import home.ingvar.passbook.lang.Exceptions;
+import home.ingvar.passbook.lang.Labels;
 import home.ingvar.passbook.transfer.User;
+import home.ingvar.passbook.utils.I18n;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,9 +21,11 @@ public class H2UserDAO implements UserDAO {
 	private static final String GET = "SELECT id, username, password, fullname FROM passbook.users WHERE username = ? AND password = P_HASH(?, ?)";
 	
 	private H2DaoFactory factory;
+	private I18n i18n;
 	
 	public H2UserDAO(H2DaoFactory factory) {
 		this.factory = factory;
+		this.i18n = I18n.getInstance();
 	}
 
 	@Override
@@ -39,7 +44,7 @@ public class H2UserDAO implements UserDAO {
 			if(id.next()) {
 				user.setId(id.getLong(1));
 			} else {
-				throw new ResultException("An error occurred while adding a new user");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_ADD));
 			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
@@ -60,7 +65,7 @@ public class H2UserDAO implements UserDAO {
 			state.setString(1, user.getFullname());
 			state.setLong(2, user.getId());
 			if(state.executeUpdate() == 0) {
-				throw new ResultException("An error occurred while updating user");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_UPD));
 			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
@@ -83,7 +88,7 @@ public class H2UserDAO implements UserDAO {
 			PreparedStatement state = connection.prepareStatement(DELETE);
 			state.setLong(1, user.getId());
 			if(state.executeUpdate() == 0) {
-				throw new ResultException("An error occurred while deleting user");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_DEL));
 			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
@@ -112,7 +117,7 @@ public class H2UserDAO implements UserDAO {
 				user.setFullname(result.getString(4));
 				return user;
 			} else {
-				throw new ResultException("Username or password incorrect");
+				throw new ResultException(i18n.getException(Exceptions.LOGIN_FAIL));
 			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
@@ -126,7 +131,7 @@ public class H2UserDAO implements UserDAO {
 	@Override
 	public void changePassword(User user, String newPassword) throws ResultException {
 		if(newPassword == null || newPassword.isEmpty()) {
-			throw new ValidationException("Password must be not empty");
+			throw new ValidationException(i18n.get(Labels.MESSAGES_PASSWORD_EMPTY));
 		}
 		validate(user, true);
 		String updItems = String.format("UPDATE passbook.items SET service = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', service)), username = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', username)), password = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', password)), comment = P_ENCRYPT('%1$s', P_DECRYPT('%2$s', comment)) WHERE owner_id = '%3$d'", newPassword, user.getPassword(), user.getId());
@@ -142,7 +147,7 @@ public class H2UserDAO implements UserDAO {
 			if(state.executeUpdate() > 0) {
 				user.setPassword(newPassword);
 			} else {
-				throw new ResultException("An error occurred while change user password");
+				throw new ResultException(i18n.getException(Exceptions.PERSIST_PWD_CNG));
 			}
 			
 		} catch(SQLException e) {
@@ -158,24 +163,24 @@ public class H2UserDAO implements UserDAO {
 	public void validate(User user, boolean exist) throws ResultException {
 		if(exist) {
 			if(user.getId() <= 0) {
-				throw new ValidationException("Unknown user");
+				throw new ValidationException(i18n.getException(Exceptions.UNKNOWN_USER));
 			}
 			User valid = get(user.getUsername(), user.getPassword());
 			if(valid.getId() != user.getId()) {
-				throw new ValidationException("Username or password incorrect");
+				throw new ValidationException(i18n.getException(Exceptions.LOGIN_FAIL));
 			}
 		}
 		else {
 			String username = user.getUsername();
 			String password = user.getPassword();
 			if(username == null || username.isEmpty()) {
-				throw new ValidationException("Username must be not empty");
+				throw new ValidationException(i18n.get(Labels.MESSAGES_USERNAME_EMPTY));
 			}
 			if(!username.matches("^[A-z][\\w-_.]+[\\w]$")) {
-				throw new ValidationException("Username must be contains latin alphabet, numbers and symbols '_.-'");
+				throw new ValidationException(i18n.getException(Exceptions.LOGIN_SYMBOLS));
 			}
 			if(password == null || password.isEmpty()) {
-				throw new ValidationException("Passwort must be not empty");
+				throw new ValidationException(i18n.get(Labels.MESSAGES_PASSWORD_EMPTY));
 			}
 			
 			String sqlExist = "SELECT id FROM passbook.users WHERE lower(username) LIKE lower('" + username + "')";
@@ -184,7 +189,7 @@ public class H2UserDAO implements UserDAO {
 				connection = factory.getConnection();
 				ResultSet result = connection.createStatement().executeQuery(sqlExist);
 				if(result.next()) {
-					throw new ValidationException("Username already exist");
+					throw new ValidationException(i18n.getException(Exceptions.USER_EXIST));
 				}
 			} catch(SQLException e) {
 				throw new ResultException(e);

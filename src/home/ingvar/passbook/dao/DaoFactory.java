@@ -1,6 +1,8 @@
 package home.ingvar.passbook.dao;
 
 import home.ingvar.passbook.dao.h2.H2DaoFactory;
+import home.ingvar.passbook.lang.Exceptions;
+import home.ingvar.passbook.utils.I18n;
 
 /**
  * Класс разделяющий уровень приложения и уровень данных
@@ -55,7 +57,7 @@ public abstract class DaoFactory {
 		switch(type) {
 			case H2: return new H2DaoFactory();
 		}
-		throw new InstantiationException("Instance not defined"); //TODO: i18n
+		throw new InstantiationException(I18n.getInstance().getException(Exceptions.NO_DAO_INSTANCE));
 	}
 	
 	/**
