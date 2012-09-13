@@ -19,6 +19,8 @@ public abstract class AbstractDialog<T> extends JDialog {
 		this.i18n  = I18n.getInstance();
 		setIconImage(IMG.FAVICON.getImage());
 		setResizable(false);
+		setModalityType(ModalityType.APPLICATION_MODAL);
+		setLocationRelativeTo(frame);
 	}
 	
 	public T showDialog() {
