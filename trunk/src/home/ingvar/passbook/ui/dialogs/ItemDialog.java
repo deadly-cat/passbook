@@ -70,8 +70,6 @@ public class ItemDialog extends AbstractDialog<Item> {
 		this.btnCancel = new JButton();
 		this.btnGenerate = new JButton();
 		
-		setModalityType(ModalityType.APPLICATION_MODAL);
-		setLocationRelativeTo(frame);
 		btnOk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
