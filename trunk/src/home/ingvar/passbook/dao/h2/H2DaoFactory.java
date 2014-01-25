@@ -64,7 +64,7 @@ public class H2DaoFactory extends DaoFactory {
 			Statement state = connection.createStatement();
 			state.executeUpdate("CREATE SCHEMA IF NOT EXISTS passbook");
 			state.executeUpdate("CREATE TABLE IF NOT EXISTS passbook.users (id IDENTITY PRIMARY KEY, username VARCHAR(20) NOT NULL UNIQUE, password CHAR(64) NOT NULL, fullname VARCHAR(40))");
-			state.executeUpdate("CREATE TABLE IF NOT EXISTS passbook.items (id IDENTITY PRIMARY KEY, owner_id BIGINT REFERENCES passbook.users(id), service VARCHAR(100), username VARCHAR(100), password VARCHAR(100), comment VARCHAR(200))");
+			state.executeUpdate("CREATE TABLE IF NOT EXISTS passbook.items (id IDENTITY PRIMARY KEY, owner_id BIGINT REFERENCES passbook.users(id), service VARCHAR(100), username VARCHAR(100), password VARCHAR(100), comment VARCHAR(200), modify_date TIMESTAMP)");
 			state.executeUpdate("CREATE ALIAS IF NOT EXISTS P_HASH FOR \"home.ingvar.passbook.dao.h2.StoredProcedure.hash\"");
 			state.executeUpdate("CREATE ALIAS IF NOT EXISTS P_ENCRYPT FOR \"home.ingvar.passbook.dao.h2.StoredProcedure.encrypt\""); //P_ENCRYPT(String key, String data) return byte[]
 			state.executeUpdate("CREATE ALIAS IF NOT EXISTS P_DECRYPT FOR \"home.ingvar.passbook.dao.h2.StoredProcedure.decrypt\""); //P_DECRYPT(String key, byte[] data) return String
@@ -93,6 +93,41 @@ public class H2DaoFactory extends DaoFactory {
 	public void close() {
 		pool.dispose();
 		pool = null;
+	}
+	
+	@Override
+	public void update() throws ResultException {
+		if(!isOpen()) {
+			open();
+		}
+		updateItemModifyDate();
+		close();
+	}
+	
+	private void updateItemModifyDate() throws ResultException {
+		Connection connection = null;
+		Statement state = null;
+		try {
+			connection = pool.getConnection();
+			state = connection.createStatement();
+			//check existing passbook.items.modify_date column
+			state.executeQuery("select modify_date from passbook.items");
+		} catch(SQLException e) {
+			if(state != null && e.getMessage().toLowerCase().indexOf("modify_date") >= 0) {
+				try {
+					state.executeUpdate("ALTER TABLE passbook.items ADD modify_date TIMESTAMP");
+					state.executeUpdate("update passbook.items set modify_date = CURRENT_TIMESTAMP()");
+				} catch(SQLException e1) {
+					throw new ResultException(e1);
+				}
+			} else {
+				throw new ResultException(e);
+			}
+		} finally {
+			if(connection != null) {
+				try{connection.close();} catch(SQLException e) {}
+			}
+		}
 	}
 
 }

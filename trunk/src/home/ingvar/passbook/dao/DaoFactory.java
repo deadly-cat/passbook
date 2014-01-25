@@ -94,5 +94,9 @@ public abstract class DaoFactory {
 	 * Close connection to datastore
 	 */
 	public abstract void close();
+	/**
+	 * Update database
+	 */
+	public abstract void update() throws ResultException;
 	
 }

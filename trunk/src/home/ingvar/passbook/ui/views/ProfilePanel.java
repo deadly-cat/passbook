@@ -2,6 +2,7 @@ package home.ingvar.passbook.ui.views;
 
 import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.lang.Labels;
+import home.ingvar.passbook.transfer.Item;
 import home.ingvar.passbook.transfer.User;
 import home.ingvar.passbook.ui.AbstractPanel;
 import home.ingvar.passbook.ui.Form;
@@ -13,17 +14,31 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ProfilePanel extends AbstractPanel {
 	
@@ -46,6 +61,11 @@ public class ProfilePanel extends AbstractPanel {
 	private JTextField fldCnfPassword;
 	private JButton btnChangePassword;
 	
+	private TitledBorder brdTransfer;
+	private JCheckBox chbWithoutEncode;
+	private JButton btnImport;
+	private JButton btnExport;
+	
 	private JLabel lblDeleteProfile;
 	private JButton btnDeleteProfile;
 	
@@ -66,6 +86,11 @@ public class ProfilePanel extends AbstractPanel {
 		fldOldPassword = new JPasswordField(15);
 		fldCnfPassword = new JPasswordField(15);
 		btnChangePassword = new JButton();
+		
+		brdTransfer = BorderFactory.createTitledBorder("");;
+		chbWithoutEncode = new JCheckBox();
+		btnImport = new JButton();
+		btnExport = new JButton();
 		
 		lblDeleteProfile = new JLabel();
 		btnDeleteProfile = new JButton(new ImageIcon(IMG.DELETE_USER.getImage()));
@@ -107,6 +132,20 @@ public class ProfilePanel extends AbstractPanel {
 				fldCnfPassword.setText("");
 			}
 		});
+		btnImport.addActionListener(new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				importData();
+			}
+		});
+		btnExport.addActionListener(new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportData();
+			}
+		});
 		btnDeleteProfile.addActionListener(new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -144,14 +183,21 @@ public class ProfilePanel extends AbstractPanel {
 		cngPass.add(fldCnfPassword, GBH.get().anchor(GBH.LINE_END).width(GBH.REMAINDER));
 		cngPass.add(btnChangePassword, GBH.get().width(2).anchor(GBH.LINE_END));
 		
-		//empty space
-		add(new JLabel(), GBH.get(0, 0, 0, 0).weightx(1.0).weighty(1.0).width(GBH.REMAINDER));
+		JPanel cngTrans = new JPanel(new GridBagLayout());
+		add(cngTrans, GBH.get(0, 0, 5, 0).fill(GBH.HORIZONTAL));
+		cngTrans.setBorder(brdTransfer);
+		cngTrans.add(chbWithoutEncode, GBH.get().width(GBH.REMAINDER).anchor(GBH.LINE_START));
+		JPanel cngTransBtns = new JPanel();
+		cngTrans.add(cngTransBtns, GBH.get().width(GBH.RELATIVE).anchor(GBH.LINE_START).weightx(1.0));
+		cngTransBtns.add(btnImport);
+		cngTransBtns.add(btnExport);
 		
 		JPanel delProfile = new JPanel(new GridBagLayout());
-		add(delProfile, GBH.get(0, 0, 5, 0).anchor(GBH.LINE_END).width(3));
+		add(delProfile, GBH.get(0, 0, 5, 0).anchor(GBH.LAST_LINE_END).weightx(1.0).width(GBH.REMAINDER));
 		delProfile.setBorder(BorderFactory.createTitledBorder(""));
 		delProfile.add(lblDeleteProfile, GBH.get().weightx(1.0));
 		delProfile.add(btnDeleteProfile, GBH.get().anchor(GBH.LINE_END));
+		
 	}
 
 	@Override
@@ -173,6 +219,11 @@ public class ProfilePanel extends AbstractPanel {
 		btnBack.setText(getText(Labels.BUTTONS_BACK));
 		btnChangeFullname.setText(getText(Labels.BUTTONS_CHANGE));
 		btnChangePassword.setText(getText(Labels.BUTTONS_CHANGE));
+		
+		brdTransfer.setTitle(getText(Labels.LABELS_TRANSFER));
+		chbWithoutEncode.setText(getText(Labels.LABELS_WITHOUT_ENCODE));
+		btnImport.setText(getText(Labels.BUTTONS_IMPORT));
+		btnExport.setText(getText(Labels.BUTTONS_EXPORT));
 	}
 	
 	@Override
@@ -223,6 +274,109 @@ public class ProfilePanel extends AbstractPanel {
 			}
 		} else {
 			JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_PASSWORD_INCORRECT), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
+		}
+	}
+	
+	private void importData() {
+		JFileChooser chooser = new JFileChooser(".");
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int result = chooser.showSaveDialog(this);
+		if(JFileChooser.APPROVE_OPTION == result) {
+			File transfer = chooser.getSelectedFile();
+			StringBuilder data = new StringBuilder();
+			
+			try {
+				BufferedInputStream in = new BufferedInputStream(new FileInputStream(transfer));
+				byte[] buf = new byte[1024];
+				int c;
+				while((c = in.read(buf)) != -1) {
+					data.append(new String(buf, 0, c));
+				}
+			} catch(IOException e) {
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+			}
+			
+			if(!chbWithoutEncode.isSelected()) {
+				//TODO: encoding
+			}
+			
+			try {
+				JSONObject main = new JSONObject(data.toString());
+				JSONArray jis = main.getJSONArray("items");
+				for(int i = 0; i < jis.length(); i++) {
+					JSONObject ji = jis.getJSONObject(i);
+					Item item = new Item();
+					item.setOwner(getUser());
+					item.setService(ji.getString("service"));
+					item.setUsername(ji.getString("username"));
+					item.setPassword(ji.getString("password"));
+					item.setModifyDate(new Date(ji.getLong("modify_date")));
+					
+					try {
+						Item upd = getItemDAO().get(getUser(), item.getService(), item.getUsername());
+						if(item.getModifyDate() != null && item.getModifyDate().after(upd.getModifyDate())) {
+							item.setId(upd.getId());
+							getItemDAO().update(item);
+						}
+					} catch(ResultException e) {
+						getItemDAO().add(item);
+					}
+				}
+			} catch(JSONException e) {
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+			} catch(ResultException e) {
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+			}
+		}
+	}
+	
+	private void exportData() {
+		JFileChooser chooser = new JFileChooser(".");
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int result = chooser.showOpenDialog(this);
+		if(JFileChooser.APPROVE_OPTION == result) {
+			File transfer = chooser.getSelectedFile();
+			String data = "";
+			
+			try {
+				List<Item> items = getItemDAO().list(getUser());
+				JSONObject main = new JSONObject();
+				JSONArray jis = new JSONArray();
+				main.put("items", jis);
+				for(Item item : items) {
+					JSONObject ji = new JSONObject();
+					jis.put(ji);
+					ji.put("service", item.getService());
+					ji.put("username", item.getUsername());
+					ji.put("password", item.getPassword());
+					ji.put("comment", item.getComment());
+					ji.put("modify_date", item.getModifyDate().getTime());
+				}
+				data = main.toString();
+				
+			} catch(ResultException e) {
+				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+			}
+			
+			if(!chbWithoutEncode.isSelected()) {
+				//TODO: encoding
+			}
+			
+			if(data != null && !data.isEmpty()) {
+				BufferedOutputStream out = null;
+				try {
+					out = new BufferedOutputStream(new FileOutputStream(transfer));
+					out.write(data.getBytes("UTF-8"));
+					out.flush();
+					JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_EXPORT_SUCCESSFUL), getText(Labels.TITLE_INFO), JOptionPane.INFORMATION_MESSAGE);
+				} catch(IOException e) {
+					LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
+				} finally {
+					try{if(out != null) out.close();}catch(IOException e) {}
+				}
+			} else {
+				JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_NOTHING_TO_TRANSFER), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
+			}
 		}
 	}
 

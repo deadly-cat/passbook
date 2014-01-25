@@ -2,6 +2,7 @@ package home.ingvar.passbook.ui;
 
 import home.ingvar.passbook.dao.DaoFactory;
 import home.ingvar.passbook.dao.ItemDAO;
+import home.ingvar.passbook.dao.ResultException;
 import home.ingvar.passbook.dao.UserDAO;
 import home.ingvar.passbook.lang.Exceptions;
 import home.ingvar.passbook.lang.Labels;
@@ -78,6 +79,15 @@ public class MainFrame extends JFrame {
 		} catch(InstantiationException e) {
 			LOG.error(i18n.get(Labels.TITLE_ERROR), i18n.getException(Exceptions.STORAGE_FAIL), e);
 			form = Form.INSTALL;
+		}
+		//update DB if it needed
+		if(Form.LOGIN.equals(form)) {
+			try {
+				daoFactory.update();
+			} catch (ResultException e) {
+				LOG.error(i18n.get(Labels.TITLE_ERROR), i18n.getException(Exceptions.STORAGE_FAIL), e);
+				throw new RuntimeException(e); //TODO: show error
+			}
 		}
 		Dialog.initialize(this);
 		setPreference();

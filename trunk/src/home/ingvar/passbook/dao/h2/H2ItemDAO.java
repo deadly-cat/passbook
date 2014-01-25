@@ -12,16 +12,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class H2ItemDAO implements ItemDAO {
 	
-	private static final String INSERT = "INSERT INTO passbook.items (owner_id, service, username, password, comment) VALUES (?, P_ENCRYPT(?, ?), P_ENCRYPT(?, ?), P_ENCRYPT(?, ?), P_ENCRYPT(?, ?))";
+	private static final SimpleDateFormat DATE = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss.SS");
+	
+	private static final String INSERT = "INSERT INTO passbook.items (owner_id, service, username, password, comment, modify_date) VALUES (?, P_ENCRYPT(?, ?), P_ENCRYPT(?, ?), P_ENCRYPT(?, ?), P_ENCRYPT(?, ?), CURRENT_TIMESTAMP())";
 	//private static final String UPDATE = "UPDATE passbook.items SET password = P_ENCRYPT(?, ?), comment = P_ENCRYPT(?, ?) WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
 	private static final String DELETE = "DELETE passbook.items WHERE id = ? AND owner_id = ?";
-	private static final String GET  = "SELECT id, P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment) FROM passbook.items WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
-	private static final String LIST = "SELECT id, P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment) FROM passbook.items WHERE owner_id = ?";
+	private static final String GET  = "SELECT id, P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment), modify_date FROM passbook.items WHERE owner_id = ? AND service = P_ENCRYPT(?, ?) AND username = P_ENCRYPT(?, ?)";
+	private static final String LIST = "SELECT id, P_DECRYPT(?, service), P_DECRYPT(?, username), P_DECRYPT(?, password), P_DECRYPT(?, comment), modify_date FROM passbook.items WHERE owner_id = ?";
 	
 	private H2DaoFactory factory;
 	private I18n i18n;
@@ -50,6 +54,7 @@ public class H2ItemDAO implements ItemDAO {
 			state.setString(7, item.getPassword());
 			state.setString(8, password);
 			state.setString(9, item.getComment());
+			//state.setDate(10, new java.sql.Date(item.getModifyDate().getTime()));
 			if(state.executeUpdate() == 0) {
 				throw new ResultException(i18n.getException(Exceptions.PERSIST_ADD));
 			}
@@ -97,6 +102,13 @@ public class H2ItemDAO implements ItemDAO {
 					sqlUpdate.append(", ");
 				}
 				sqlUpdate.append("comment = P_ENCRYPT('"+password+"','"+item.getComment()+"')");
+			}
+			item.setModifyDate(new Date());
+			if(item.getModifyDate() != null) {
+				if(!sqlUpdate.toString().endsWith("SET ")) {
+					sqlUpdate.append(", ");
+				}
+				sqlUpdate.append("modify_date = '"+DATE.format(item.getModifyDate())+"'");
 			}
 			sqlUpdate.append(" WHERE id = "+item.getId()+" AND owner_id = "+item.getOwner().getId());
 			if(connection.createStatement().executeUpdate(sqlUpdate.toString()) == 0) {
@@ -159,6 +171,7 @@ public class H2ItemDAO implements ItemDAO {
 				item.setUsername(result.getString(3).trim());
 				item.setPassword(result.getString(4).trim());
 				item.setComment(result.getString(5).trim());
+				item.setModifyDate(result.getDate(6));
 				return item;
 			} else {
 				throw new ResultException(i18n.getException(Exceptions.PERSIST_NOT_FOUND));
@@ -195,6 +208,7 @@ public class H2ItemDAO implements ItemDAO {
 				item.setUsername(result.getString(3).trim());
 				item.setPassword(result.getString(4).trim());
 				item.setComment(result.getString(5).trim());
+				item.setModifyDate(result.getDate(6));
 				items.add(item);
 			}
 			
