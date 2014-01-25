@@ -1,6 +1,7 @@
 package home.ingvar.passbook.transfer;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Объект агрегирующий информацию о единице данных пользователя.
@@ -18,6 +19,7 @@ public class Item implements Serializable, Cloneable {
 	private String username;
 	private String password;
 	private String comment;
+	private Date modifyDate;
 	
 	public Item() {}
 	
@@ -33,6 +35,7 @@ public class Item implements Serializable, Cloneable {
 		username = item.username;
 		password = item.password;
 		comment  = item.comment;
+		modifyDate = item.modifyDate;
 	}
 	
 	public long getId() {
@@ -83,6 +86,14 @@ public class Item implements Serializable, Cloneable {
 		this.comment = comment;
 	}
 	
+	public Date getModifyDate() {
+		return modifyDate;
+	}
+
+	public void setModifyDate(Date modifyDate) {
+		this.modifyDate = modifyDate;
+	}
+
 	@Override
 	public int hashCode() {
 		int hash = 4;

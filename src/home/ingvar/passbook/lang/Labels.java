@@ -46,6 +46,8 @@ public interface Labels {
 	String LABELS_RELEASES = "labels.releases";
 	String LABELS_TRACKER = "labels.tracker";
 	String LABELS_LICENSE = "labels.license";
+	String LABELS_WITHOUT_ENCODE = "labels.without-encode";
+	String LABELS_TRANSFER = "labels.transfer";
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";
 	String MESSAGES_ITEM_NOT_SELECT = "messages.item-not-select";
@@ -58,6 +60,9 @@ public interface Labels {
 	String MESSAGES_DELETE_PROFILE = "messages.delete-profile";
 	String MESSAGES_SETTINGS_CHANGED = "messages.settings-changed";
 	String MESSAGES_RESTART_TO_APPLY = "messages.restart-to-apply";
+	String MESSAGES_IMPORT_SUCCESSFUL = "messages.import-successful";
+	String MESSAGES_EXPORT_SUCCESSFUL = "messages.import-successful";
+	String MESSAGES_NOTHING_TO_TRANSFER = "messages.nothing-to-transfer";
 	String BUTTONS_OK = "buttons.ok";
 	String BUTTONS_CANCEL = "buttons.cancel";
 	String BUTTONS_BACK = "buttons.back";
@@ -73,5 +78,7 @@ public interface Labels {
 	String BUTTONS_ITEM_DELETE = "buttons.item.delete";
 	String BUTTONS_GENERATE = "buttons.generate";
 	String BUTTONS_APPLY = "buttons.apply";
+	String BUTTONS_IMPORT = "buttons.import";
+	String BUTTONS_EXPORT = "buttons.export";
 
 }
