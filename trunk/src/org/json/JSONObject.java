@@ -655,7 +655,8 @@ public class JSONObject {
         if (object instanceof String) {
             return (String) object;
         }
-        throw new JSONException("JSONObject[" + quote(key) + "] not a string.");
+        //throw new JSONException("JSONObject[" + quote(key) + "] not a string.");
+        return null;
     }
 
     /**

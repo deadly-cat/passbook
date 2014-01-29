@@ -61,7 +61,7 @@ public interface Labels {
 	String MESSAGES_SETTINGS_CHANGED = "messages.settings-changed";
 	String MESSAGES_RESTART_TO_APPLY = "messages.restart-to-apply";
 	String MESSAGES_IMPORT_SUCCESSFUL = "messages.import-successful";
-	String MESSAGES_EXPORT_SUCCESSFUL = "messages.import-successful";
+	String MESSAGES_EXPORT_SUCCESSFUL = "messages.export-successful";
 	String MESSAGES_NOTHING_TO_TRANSFER = "messages.nothing-to-transfer";
 	String BUTTONS_OK = "buttons.ok";
 	String BUTTONS_CANCEL = "buttons.cancel";

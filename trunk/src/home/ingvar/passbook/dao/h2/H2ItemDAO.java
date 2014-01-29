@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.h2.util.StringUtils;
+
 public class H2ItemDAO implements ItemDAO {
 	
 	private static final SimpleDateFormat DATE = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss.SS");
@@ -77,44 +79,26 @@ public class H2ItemDAO implements ItemDAO {
 	@Override
 	public void update(Item item) throws ResultException {
 		validate(item);
+		item.setModifyDate(new Date());
 		Connection connection = null;
 		try {
 			String password = item.getOwner().getPassword();
 			connection = factory.getConnection();
 			StringBuilder sqlUpdate = new StringBuilder("UPDATE passbook.items SET ");
-			if(item.getService() != null) {
-				sqlUpdate.append("service = P_ENCRYPT('"+password+"', '"+item.getService()+"')");
-			}
-			if(item.getUsername() != null) {
-				if(!sqlUpdate.toString().endsWith("SET ")) {
-					sqlUpdate.append(", ");
-				}
-				sqlUpdate.append("username = P_ENCRYPT('"+password+"','"+item.getUsername()+"')");
-			}
-			if(item.getPassword() != null) {
-				if(!sqlUpdate.toString().endsWith("SET ")) {
-					sqlUpdate.append(", ");
-				}
-				sqlUpdate.append("password = P_ENCRYPT('"+password+"','"+item.getPassword()+"')");
-			}
-			if(item.getComment() != null) {
-				if(!sqlUpdate.toString().endsWith("SET ")) {
-					sqlUpdate.append(", ");
-				}
-				sqlUpdate.append("comment = P_ENCRYPT('"+password+"','"+item.getComment()+"')");
-			}
-			item.setModifyDate(new Date());
-			if(item.getModifyDate() != null) {
-				if(!sqlUpdate.toString().endsWith("SET ")) {
-					sqlUpdate.append(", ");
-				}
-				sqlUpdate.append("modify_date = '"+DATE.format(item.getModifyDate())+"'");
-			}
-			sqlUpdate.append(" WHERE id = "+item.getId()+" AND owner_id = "+item.getOwner().getId());
-			if(connection.createStatement().executeUpdate(sqlUpdate.toString()) == 0) {
-				throw new ResultException(i18n.getException(Exceptions.PERSIST_UPD)); 
+			setFieldToUpdate(sqlUpdate, password, "service", item.getService());
+			setFieldToUpdate(sqlUpdate, password, "username", item.getUsername());
+			setFieldToUpdate(sqlUpdate, password, "password", item.getPassword());
+			setFieldToUpdate(sqlUpdate, password, "comment", item.getComment());
+			if(!sqlUpdate.toString().endsWith("SET ")) {
+            	sqlUpdate.append(", modify_date = parsedatetime('"+DATE.format(item.getModifyDate())+"', 'dd-MM-yyyy hh:mm:ss.SS')");
 			}
 			
+			if(!sqlUpdate.toString().endsWith("SET ")) {
+				sqlUpdate.append(" WHERE id = "+item.getId()+" AND owner_id = "+item.getOwner().getId());
+				if(connection.createStatement().executeUpdate(sqlUpdate.toString()) == 0) {
+					throw new ResultException(i18n.getException(Exceptions.PERSIST_UPD)); 
+				}
+			}
 		} catch(SQLException e) {
 			throw new ResultException(e);
 		} finally {
@@ -225,6 +209,27 @@ public class H2ItemDAO implements ItemDAO {
 	@Override
 	public void validate(Item item) throws ResultException {
 		factory.getUserDAO().validate(item.getOwner(), true);
+		if(StringUtils.isNullOrEmpty(item.getService())) {
+			throw new ResultException("service must not be empty"); //TODO:
+		}
+		if(StringUtils.isNullOrEmpty(item.getUsername())) {
+			throw new ResultException("username must not be empty"); //TODO:
+		}
+		if(item.getPassword() == null) {
+			item.setPassword("");
+		}
+		if(item.getComment() == null) {
+			item.setComment("");
+		}
+	}
+	
+	private void setFieldToUpdate(StringBuilder updateQuery, String key, String name, String value) {
+		if(!StringUtils.isNullOrEmpty(value)) {
+			if(!updateQuery.toString().endsWith("SET ")) {
+				updateQuery.append(", ");
+			}
+			updateQuery.append(String.format("%s = P_ENCRYPT('%s', '%s')", name, key, value));
+		}
 	}
 
 }
