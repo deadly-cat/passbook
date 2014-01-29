@@ -311,15 +311,20 @@ public class ProfilePanel extends AbstractPanel {
 					item.setUsername(ji.getString("username"));
 					item.setPassword(ji.getString("password"));
 					item.setModifyDate(new Date(ji.getLong("modify_date")));
+					item.setComment(ji.getString("comment"));
 					
+					Item upd = null;
 					try {
-						Item upd = getItemDAO().get(getUser(), item.getService(), item.getUsername());
+						upd = getItemDAO().get(getUser(), item.getService(), item.getUsername());
+					} catch(ResultException e) {}
+					
+					if(upd == null) {
+						getItemDAO().add(item);
+					} else {					
 						if(item.getModifyDate() != null && item.getModifyDate().after(upd.getModifyDate())) {
 							item.setId(upd.getId());
 							getItemDAO().update(item);
 						}
-					} catch(ResultException e) {
-						getItemDAO().add(item);
 					}
 				}
 			} catch(JSONException e) {
