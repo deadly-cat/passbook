@@ -327,6 +327,7 @@ public class ProfilePanel extends AbstractPanel {
 						}
 					}
 				}
+				//TODO: show successful message
 			} catch(JSONException e) {
 				LOG.error(getText(Labels.TITLE_ERROR), e.getMessage(), e);
 			} catch(ResultException e) {
@@ -336,6 +337,12 @@ public class ProfilePanel extends AbstractPanel {
 	}
 	
 	private void exportData() {
+		String password = JOptionPane.showInputDialog(this, getText(Labels.MESSAGES_EXPORT_CONFIRMATION), getText(Labels.TITLE_EXPORT_CONFIRMATION), JOptionPane.INFORMATION_MESSAGE);
+		if(!getUser().getPassword().equals(password)) {
+			JOptionPane.showMessageDialog(this, getText(Labels.MESSAGES_PASSWORD_INCORRECT), getText(Labels.TITLE_EXPORT_CONFIRMATION), JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		
 		JFileChooser chooser = new JFileChooser(".");
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		int result = chooser.showOpenDialog(this);
@@ -379,6 +386,7 @@ public class ProfilePanel extends AbstractPanel {
 				} finally {
 					try{if(out != null) out.close();}catch(IOException e) {}
 				}
+				//TODO: show successful message
 			} else {
 				JOptionPane.showMessageDialog(getRoot(), getText(Labels.MESSAGES_NOTHING_TO_TRANSFER), getText(Labels.TITLE_WARNING), JOptionPane.WARNING_MESSAGE);
 			}

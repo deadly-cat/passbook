@@ -14,6 +14,8 @@ public interface Labels {
 	String TITLE_PROPERTIES_LOAD = "title.properties.load";
 	String TITLE_INCOMPOTIBLE_NUMBER = "title.incompotible-number";
 	String TITLE_LOAD_IMAGE = "title.load-image";
+	String TITLE_EXPORT_CONFIRMATION = "title.export-confirmation";
+	
 	String MENU_FILE = "menu.file";
 	String MENU_FILE_EXIT = "menu.file.exit";
 	String MENU_SETTINGS = "menu.settings";
@@ -21,6 +23,7 @@ public interface Labels {
 	String MENU_SETTINGS_THEME = "menu.settings.theme";
 	String MENU_HELP = "menu.help";
 	String MENU_HELP_ABOUT = "menu.help.about";
+	
 	String LABELS_DATABASE = "labels.database";
 	String LABELS_USERNAME = "labels.username";
 	String LABELS_FULLNAME = "labels.fullname";
@@ -48,6 +51,7 @@ public interface Labels {
 	String LABELS_LICENSE = "labels.license";
 	String LABELS_WITHOUT_ENCODE = "labels.without-encode";
 	String LABELS_TRANSFER = "labels.transfer";
+	
 	String MESSAGES_CREATED = "messages.created";
 	String MESSAGES_COPY_PASSWORD = "messages.copy-password";
 	String MESSAGES_ITEM_NOT_SELECT = "messages.item-not-select";
@@ -63,6 +67,8 @@ public interface Labels {
 	String MESSAGES_IMPORT_SUCCESSFUL = "messages.import-successful";
 	String MESSAGES_EXPORT_SUCCESSFUL = "messages.export-successful";
 	String MESSAGES_NOTHING_TO_TRANSFER = "messages.nothing-to-transfer";
+	String MESSAGES_EXPORT_CONFIRMATION = "messages.export-confirmation";
+	
 	String BUTTONS_OK = "buttons.ok";
 	String BUTTONS_CANCEL = "buttons.cancel";
 	String BUTTONS_BACK = "buttons.back";
